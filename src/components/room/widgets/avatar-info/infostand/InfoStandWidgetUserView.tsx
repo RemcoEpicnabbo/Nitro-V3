@@ -1,10 +1,10 @@
 import React from 'react';
-import { GetSessionDataManager, RelationshipStatusInfoEvent, RelationshipStatusInfoMessageParser, RoomSessionFavoriteGroupUpdateEvent, RoomSessionUserBadgesEvent, RoomSessionUserFigureUpdateEvent, UserRelationshipsComposer } from '@nitrots/nitro-renderer';
-import { Dispatch, FC, FocusEvent, KeyboardEvent, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import { GetSessionDataManager, RelationshipStatusInfoEvent, RelationshipStatusInfoMessageParser, UserRelationshipsComposer } from '@nitrots/nitro-renderer';
+import { FC, FocusEvent, KeyboardEvent, useCallback, useEffect, useState } from 'react';
 import { FaPencilAlt, FaTimes } from 'react-icons/fa';
-import { AvatarInfoUser, CloneObject, GetConfigurationValue, GetGroupInformation, GetUserProfile, LocalizeText, SendMessageComposer } from '../../../../../api';
+import { AvatarInfoUser, GetConfigurationValue, GetGroupInformation, GetUserProfile, LocalizeText, SendMessageComposer } from '../../../../../api';
 import { Base, Column, Flex, LayoutAvatarImageView, LayoutBadgeImageView, Text, UserIdentityView, UserProfileIconView } from '../../../../../common';
-import { useMessageEvent, useNitroEvent, useRoom } from '../../../../../hooks';
+import { useMessageEvent, useRoom } from '../../../../../hooks';
 import { InfoStandBadgeSlotView } from './InfoStandBadgeSlotView';
 import { InfoStandWidgetUserRelationshipsView } from './InfoStandWidgetUserRelationshipsView';
 import { InfoStandWidgetUserTagsView } from './InfoStandWidgetUserTagsView';
@@ -12,13 +12,12 @@ import { BackgroundsView } from '../../../../backgrounds/BackgroundsView';
 
 interface InfoStandWidgetUserViewProps {
   avatarInfo: AvatarInfoUser;
-  setAvatarInfo: Dispatch<SetStateAction<AvatarInfoUser>>;
   onClose: () => void;
 }
 
 export const InfoStandWidgetUserView: FC<InfoStandWidgetUserViewProps> = props =>
 {
-    const { avatarInfo = null, setAvatarInfo = null, onClose = null } = props;
+    const { avatarInfo = null, onClose = null } = props;
     const [motto, setMotto] = useState<string>(null);
     const [isEditingMotto, setIsEditingMotto] = useState(false);
     const [relationships, setRelationships] = useState<RelationshipStatusInfoMessageParser>(null);
@@ -64,77 +63,6 @@ export const InfoStandWidgetUserView: FC<InfoStandWidgetUserViewProps> = props =
                 return;
         }
     };
-
-    useNitroEvent<RoomSessionUserBadgesEvent>(RoomSessionUserBadgesEvent.RSUBE_BADGES, event =>
-    {
-        if (!avatarInfo || avatarInfo.webID !== event.userId) return;
-
-        // Deduplicate badges from server
-        const seen = new Set<string>();
-        const dedupedBadges = event.badges.map(code =>
-        {
-            if (!code || seen.has(code)) return '';
-            seen.add(code);
-            return code;
-        });
-
-        const oldBadges = avatarInfo.badges.join('');
-
-        if (oldBadges === dedupedBadges.join('')) return;
-
-        setAvatarInfo(prevValue =>
-        {
-            if (!prevValue) return prevValue;
-
-            const newValue = CloneObject(prevValue);
-            newValue.badges = dedupedBadges;
-            return newValue;
-        });
-    });
-
-    useNitroEvent<RoomSessionUserFigureUpdateEvent>(RoomSessionUserFigureUpdateEvent.USER_FIGURE, event =>
-    {
-        if (!avatarInfo || avatarInfo.roomIndex !== event.roomIndex) return;
-
-        setAvatarInfo(prevValue =>
-        {
-            if (!prevValue) return prevValue;
-
-            const newValue = CloneObject(prevValue);
-            newValue.figure = event.figure;
-            newValue.motto = event.customInfo;
-            newValue.achievementScore = event.activityPoints;
-            newValue.nickIcon = event.nickIcon;
-            newValue.prefixText = event.prefixText;
-            newValue.prefixColor = event.prefixColor;
-            newValue.prefixIcon = event.prefixIcon;
-            newValue.prefixEffect = event.prefixEffect;
-            newValue.displayOrder = event.displayOrder;
-            newValue.backgroundId = event.backgroundId;
-            newValue.standId = event.standId;
-            newValue.overlayId = event.overlayId;
-            newValue.cardBackgroundId = event.cardBackgroundId ?? 0;
-            return newValue;
-        });
-    });
-
-    useNitroEvent<RoomSessionFavoriteGroupUpdateEvent>(RoomSessionFavoriteGroupUpdateEvent.FAVOURITE_GROUP_UPDATE, event =>
-    {
-        if (!avatarInfo || avatarInfo.roomIndex !== event.roomIndex) return;
-
-        setAvatarInfo(prevValue =>
-        {
-            if (!prevValue) return prevValue;
-
-            const newValue = CloneObject(prevValue);
-            const clearGroup = (event.status === -1) || (event.habboGroupId <= 0);
-
-            newValue.groupId = clearGroup ? -1 : event.habboGroupId;
-            newValue.groupName = clearGroup ? null : event.habboGroupName;
-            newValue.groupBadgeId = clearGroup ? null : GetSessionDataManager().getGroupBadge(event.habboGroupId);
-            return newValue;
-        });
-    });
 
     useMessageEvent<RelationshipStatusInfoEvent>(RelationshipStatusInfoEvent, event =>
     {

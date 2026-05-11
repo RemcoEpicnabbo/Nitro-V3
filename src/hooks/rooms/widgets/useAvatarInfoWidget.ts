@@ -1,4 +1,4 @@
-import { GetRoomEngine, GetSessionDataManager, RoomEngineObjectEvent, RoomEngineUseProductEvent, RoomObjectCategory, RoomObjectType, RoomObjectVariable, RoomSessionPetInfoUpdateEvent, RoomSessionPetStatusUpdateEvent, RoomSessionUserDataUpdateEvent } from '@nitrots/nitro-renderer';
+import { GetRoomEngine, GetSessionDataManager, RoomEngineObjectEvent, RoomEngineUseProductEvent, RoomObjectCategory, RoomObjectType, RoomObjectVariable, RoomSessionFavoriteGroupUpdateEvent, RoomSessionPetInfoUpdateEvent, RoomSessionPetStatusUpdateEvent, RoomSessionUserBadgesEvent, RoomSessionUserDataUpdateEvent, RoomSessionUserFigureUpdateEvent } from '@nitrots/nitro-renderer';
 import { useEffect, useRef, useState } from 'react';
 import { AvatarInfoFurni, AvatarInfoName, AvatarInfoPet, AvatarInfoRentableBot, AvatarInfoUser, AvatarInfoUtilities, CanManipulateFurniture, FurniCategory, IAvatarInfo, IsOwnerOfFurniture, RoomWidgetUpdateRoomObjectEvent, UseProductItem } from '../../../api';
 import { useNitroEvent, useUiEvent } from '../../events';
@@ -6,6 +6,7 @@ import { useFriends } from '../../friends';
 import { useWired } from '../../wired';
 import { useObjectDeselectedEvent, useObjectRollOutEvent, useObjectRollOverEvent, useObjectSelectedEvent } from '../engine';
 import { useRoom } from '../useRoom';
+import { applyFavouriteGroupUpdate, applyUserBadgesUpdate, applyUserFigureUpdate } from './avatarInfo.reducers';
 
 const useAvatarInfoWidgetState = () =>
 {
@@ -294,6 +295,21 @@ const useAvatarInfoWidgetState = () =>
         if(!CanManipulateFurniture(roomSession, event.objectId, event.category)) return;
 
         setIsDecorating(true);
+    });
+
+    useNitroEvent<RoomSessionUserBadgesEvent>(RoomSessionUserBadgesEvent.RSUBE_BADGES, event =>
+    {
+        setAvatarInfo(prev => applyUserBadgesUpdate(prev, event));
+    });
+
+    useNitroEvent<RoomSessionUserFigureUpdateEvent>(RoomSessionUserFigureUpdateEvent.USER_FIGURE, event =>
+    {
+        setAvatarInfo(prev => applyUserFigureUpdate(prev, event));
+    });
+
+    useNitroEvent<RoomSessionFavoriteGroupUpdateEvent>(RoomSessionFavoriteGroupUpdateEvent.FAVOURITE_GROUP_UPDATE, event =>
+    {
+        setAvatarInfo(prev => applyFavouriteGroupUpdate(prev, event, groupId => GetSessionDataManager().getGroupBadge(groupId)));
     });
 
     useObjectSelectedEvent(event =>
