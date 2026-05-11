@@ -160,7 +160,7 @@ Login / Register / Forgot in `src/components/login/LoginView.tsx` use
 | Zustand | `NavigatorRoomCreatorView` (`useRoomCreatorStore`) |
 | God-hook split | `doorbell`, `poll`, `furni-chooser`, `user-chooser`, `friend-request` |
 | `WidgetErrorBoundary` | `RoomWidgetsView` umbrella |
-| Vitest | 77/77 cases on pure helpers + the Zustand store |
+| Vitest | 99/99 cases on pure helpers + the Zustand store |
 
 | Not yet | Notes |
 |---|---|
@@ -196,7 +196,7 @@ Fix shapes documented; both are reasonable PRs on their own.
 - **Skip-motivated god-hook splits are fine** — when a hook's actions
   mutate internal state, document the reason in the commit message and
   move on rather than forcing a bad split.
-- **`yarn test` must stay green** on every commit. Currently 77/77.
+- **`yarn test` must stay green** on every commit. Currently 99/99.
 - **Lint baseline**: don't regress. Some pre-existing errors (`FC<{}>`,
   `IMessageEvent | undefined` redundant union in the local sandbox where
   the renderer SDK isn't installed) are out of scope here.

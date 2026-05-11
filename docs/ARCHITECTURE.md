@@ -360,11 +360,33 @@ The current branch (**`feat/react19-modernization`**, PR #2) has applied:
   devtools installed; `QueryClientProvider` mounted in `src/index.tsx`.
   Adapter at `src/api/nitro-query/createNitroQuery.ts` with `select`,
   `accept` (correlation-key filter), `timeoutMs`, `staleTime`, plus a
-  lower-level `awaitNitroResponse()` for imperative use. Pilots:
-  `OfferView`, `CatalogLayoutRoomAdsView`, `ModToolsChatlogView`,
-  `CfhChatlogView`, `useGiftConfiguration` (replaces the
-  `GiftWrappingConfigurationEvent` listener + eager composer dispatch
-  that lived in `useCatalog`; consumed directly by `CatalogGiftView`).
+  lower-level `awaitNitroResponse()` for imperative use. Companion at
+  `src/api/nitro-query/useNitroEventInvalidator.ts` invalidates a slot
+  whenever the server pushes the matching event unprompted — required
+  for queries whose data the server refreshes outside the request cycle
+  (e.g. ClubGiftInfoEvent after a gift claim). Pilots / sites:
+    - `OfferView` (targeted offer)
+    - `CatalogLayoutRoomAdsView` (room-ad list)
+    - `ModToolsChatlogView` / `CfhChatlogView` (correlated by roomId / ticketId)
+    - `useGiftConfiguration` — replaces the GiftWrappingConfigurationEvent
+      listener + eager composer dispatch that lived in `useCatalog`
+    - `useUserGroups` — consolidates 5 sites that each fired
+      CatalogGroupsComposer independently (2 wired views + 2 catalog
+      group widgets + useCatalog itself); now one query, dedup'd
+    - `useClubOffers(windowId)` — per-windowId query for the VIP / Builders
+      Club purchase pages, with accept() correlation filter
+    - `useSellablePetPalette(breed)` — per-breed pet palette, accept()
+      filter on parser.productCode
+    - `useMarketplaceConfiguration` — lifts a self-fetch out of
+      MarketplacePostOfferView
+    - `useClubGifts` — paired with `useNitroEventInvalidator` for the
+      server-push-after-SelectClubGift case
+- **`ICatalogOptions` deleted** — useCatalog used to expose a
+  `catalogOptions` bag where multiple components stuffed unrelated
+  fetched data (groups, clubOffers, clubOffersByWindowId, petPalettes,
+  marketplaceConfiguration, clubGifts, giftConfiguration). Every field
+  is now its own TanStack query at the consumer site; the bag and the
+  interface are gone.
 - **Layout / feature folders** (proposal #3) — **rejected**. The existing
   `src/components/<area>/<feature>/` (views) +
   `src/hooks/<area>/<feature?>/` (flat hook files) is the layout that
@@ -424,11 +446,33 @@ The current branch (**`feat/react19-modernization`**, PR #2) has applied:
   dropped.
 - Main view: **4493 → 3544 lines** (−21%).
 
+### `useCatalog` decomposition (in progress)
+
+The 1100-line god-hook owns the catalog page tree, current page,
+offer selection, and a long tail of secondary fetches. Decomposition
+strategy from ARCHITECTURE.md proposal #4 step 1: lift the
+session-stable read-only fetches to TanStack queries first, then
+split the remaining state ownership into `useCatalogData` /
+`useCatalogUiState` / `useCatalogActions`.
+
+Status after this round of work:
+
+| Fetch | Migrated to |
+|---|---|
+| GiftWrappingConfiguration | `useGiftConfiguration()` |
+| GuildMemberships | `useUserGroups()` |
+| HabboClubOffers (per windowId) | `useClubOffers(windowId)` |
+| SellablePetPalettes (per breed) | `useSellablePetPalette(breed)` |
+| MarketplaceConfiguration | `useMarketplaceConfiguration()` |
+| ClubGiftInfo | `useClubGifts()` (with `useNitroEventInvalidator`) |
+| CatalogPagesList / CatalogPage | **deferred** — core state slice (rootNode / offersToNodes / currentPage), needs its own split-out store |
+| BuildersClubFurniCount / SubscriptionStatus | **deferred** — read by the internal `getBuilderFurniPlaceableStatus` logic, moves with the data/actions split |
+
 ### Tests
 - Vitest 3 + jsdom + `@testing-library/react` + `@testing-library/jest-dom`
   configured. Separate `vitest.config.mts` so the runner doesn't drag in
   the renderer SDK aliases from `vite.config.mjs`.
-- **83 cases passing** across 7 test files:
+- **99 cases passing** across 7 test files:
     - `WiredCreatorTools.helpers.test.ts` (18) — formatters + snapshot
       factory.
     - `navigatorRoomCreatorStore.test.ts` (4) — Zustand store invariants
@@ -442,6 +486,12 @@ The current branch (**`feat/react19-modernization`**, PR #2) has applied:
       `LocalizeText` mock (cuts the transitive renderer-SDK import).
     - `dedupeBadges.test.ts` (6) — slot-preserving badge dedup
       (covers the helper used by the InfoStand pilot).
+    - `catalog-favorites.helpers.test.ts` (16) — localStorage parse +
+      v2→v3 migration + per-catalog-type storage-key routing.
+- **Pure-module convention**: tests live in `tests/` and import from
+  concrete file paths (e.g. `../src/api/catalog/CatalogType`) rather
+  than the api barrel, so jsdom doesn't transitively load the renderer
+  SDK's Pixi-bound modules.
 - `yarn test` + `yarn test:watch` scripts added.
 
 ### Logic bug fixes
@@ -468,7 +518,7 @@ The current branch (**`feat/react19-modernization`**, PR #2) has applied:
   call site).
 
 ### Typecheck baseline
-- Repository-wide `tsgo` (TS 7 preview) errors driven down to **57**
+- Repository-wide `tsgo` (TS 7 preview) errors driven down to **0**
   client-side and **0** renderer-side via a series of small targeted
   sweeps:
     - Framer-motion `Variants` typing on `ToolbarView` + `FriendsBarView`
