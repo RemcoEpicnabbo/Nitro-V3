@@ -296,70 +296,175 @@ failures.
 
 ## What's already in place
 
-The current branch (`claude/update-react-typescript-He2rs`) has applied:
+The current branch (**`feat/react19-modernization`**, PR #2) has applied:
 
-- **React 19.2 / TypeScript 7 (Native preview) / ESLint 10 / React Hooks v7 / React Compiler 1.0** — toolchain bump, all warnings audited.
-- **Form Actions** — `<form action={...}>` + `useActionState` adopted in
-  `LoginView.tsx` (login, register, forgot dialogs).
-- **`useEffectEvent`** — adopted in `App.tsx`, `FurniEditorSearchView`,
-  `NotificationBadgeReceivedBubbleView`, `NavigatorRoomSettingsRightsTabView`,
-  `UiSettingsContext` to clear all `react-hooks/exhaustive-deps` warnings.
-- **Targeted `set-state-in-effect` cleanup** — `CatalogHeaderView` (pure
-  derive), `NavigatorRoomCreatorView` (lazy state init), `LoginView`
+### Toolchain
+- React 19.2 / `react-dom` 19.2 / `@types/react` 19.2.
+- TS 6 for build + **TS 7 native preview** (`tsgo`) for `yarn typecheck`.
+- ESLint 10 + `typescript-eslint` 8 + `eslint-plugin-react-hooks@7` +
+  `eslint-plugin-react-compiler`.
+- Vite 8 + React Compiler 1.0 (`babel-plugin-react-compiler`).
+- `<StrictMode>` mounted; `App.tsx` made idempotent for the double-mount.
+
+### React 19 idioms
+- **`forwardRef` → `ref` prop** on 7 layout/component files (11 call sites).
+- **`<Ctx.Provider>` → `<Ctx>`** on 6 contexts.
+- **Native `<script>`** in `TurnstileWidget`, `ExternalPluginLoader`,
+  `GoogleAdsView`.
+- **Form Actions** (`useActionState` + `useFormStatus`) for the inline
+  Login/Register/Forgot dialogs in `LoginView.tsx`. Legacy non-Action
+  versions in `components/login/components/` removed as dead code.
+- **`useEffectEvent`** in `App.tsx`, `FurniEditorSearchView`,
+  `NotificationBadgeReceivedBubbleView`,
+  `NavigatorRoomSettingsRightsTabView`, `UiSettingsContext`,
+  `TurnstileWidget` — clears all remaining `exhaustive-deps` warnings.
+- Targeted `set-state-in-effect` fixes: `CatalogHeaderView` (pure derive),
+  `NavigatorRoomCreatorView` (lazy state init), `LoginView`
   (track-previous-prop reset), `ChooserWidgetView` (callback in
   `useEffectEvent`).
-- **`WiredCreatorToolsView` split** — types/constants/helpers extracted to
-  sibling files; main view 4493 → 3901 lines.
-- **Pattern #1 (`useNitroEventState`)** — implemented + 1 pilot.
-- **Pattern #3 (feature folder)** — **rejected**; the existing
-  `src/components/<area>/` + `src/hooks/<area>/` layout is kept.
-- **Pattern #4 (split god-hook)** — applied to:
-    - doorbell: `useDoorbellState` (data) + `useDoorbellActions`;
-    - poll: `usePollSubscriptions` (3 listeners) + `usePollActions`
-      (3 imperative actions). `useWordQuizWidget` migrated to import
-      `usePollActions` directly (it doesn't need the subscriptions).
-- **Pattern #2 (`useNitroQuery`)** — **enabled**: `@tanstack/react-query`
-  installed, `QueryClientProvider` mounted, real adapter in
-  `src/api/nitro-query/`, first migration on `OfferView`.
-- **Pattern #5 (Zustand store)** — **enabled**: `zustand` installed,
-  `createNitroStore` is now a real re-export, first migration converts
-  the `let isCreatingRoom` / `createRoomTimeout` singleton in
-  `NavigatorRoomCreatorView` to `useRoomCreatorStore`.
-- **Test infrastructure** — Vitest 3 + jsdom + @testing-library set up.
-  22 smoke tests passing on the pure helpers
-  (`WiredCreatorTools.helpers.ts`) and the new Zustand store.
-- **Bonus (error boundaries)** — `WidgetErrorBoundary` applied at
-  `RoomWidgetsView`.
+
+### Patterns + adoption (proposals #1, #2, #4, #5)
+- **`useNitroEventState` / `useMessageEventState`** (proposal #1) — adapter
+  in `src/hooks/events/`. Pilot: `OfferView`. Selector held in a
+  `useLayoutEffect`-refreshed ref (Dan Abramov's use-event-callback
+  pattern) so the listener stays mounted across renders.
+- **`useNitroQuery`** (proposal #2) — **enabled**. `@tanstack/react-query` +
+  devtools installed; `QueryClientProvider` mounted in `src/index.tsx`.
+  Adapter at `src/api/nitro-query/createNitroQuery.ts` with `select`,
+  `accept` (correlation-key filter), `timeoutMs`, `staleTime`, plus a
+  lower-level `awaitNitroResponse()` for imperative use. Pilots:
+  `OfferView`, `CatalogLayoutRoomAdsView`, `ModToolsChatlogView`,
+  `CfhChatlogView`.
+- **Layout / feature folders** (proposal #3) — **rejected**. The existing
+  `src/components/<area>/<feature>/` (views) +
+  `src/hooks/<area>/<feature?>/` (flat hook files) is the layout that
+  stays. See section 3 above for the full rule.
+- **God-hook split** (proposal #4) — applied to:
+    - **doorbell**: `useDoorbellState` + `useDoorbellActions` + shim.
+    - **poll**: `usePollSubscriptions` (mounted once in `RoomWidgetsView`)
+      + `usePollActions` + shim. `useWordQuizWidget` was migrated to
+      import `usePollActions` directly so it doesn't pull subscriptions.
+    - **furni chooser**: `useFurniChooserState` + `useFurniChooserActions`
+      + shim. Helper `buildWallItem`/`buildFloorItem` dedupes ~50 lines
+      of inline `RoomObjectItem` construction.
+    - **user chooser**: `useUserChooserState` + `useUserChooserActions`
+      + shim. Helper `buildUserItem`. Adds `?.` guards on
+      `roomSession?.userDataManager?` to avoid the room-transition NPE
+      pattern.
+    - **friend request**: `useFriendRequestState` (3 useState + 2 event
+      bridges + 1 derive effect) + `useFriendRequestActions` (thin
+      adapter on the friends store) + shim. Exports `ActiveFriendRequest`
+      type.
+- **Zustand** (proposal #5) — **enabled**. `zustand` installed; factory at
+  `src/state/createNitroStore.ts`. First adoption: the `let isCreatingRoom`
+  / `createRoomTimeout` module-level pair in `NavigatorRoomCreatorView`
+  replaced by `useRoomCreatorStore` (timer lives in the store closure,
+  survives StrictMode double-mount).
+
+### `WiredCreatorToolsView` decomposition
+- Top-level constants/types/helpers extracted to sibling files
+  (`WiredCreatorTools.{types,constants,helpers}.ts`).
+- All four tab JSX bodies extracted into sibling components:
+    - `WiredMonitorTabView`
+    - `WiredInspectionTabView`
+    - `WiredVariablesTabView`
+    - `WiredToolsSettingsTabView` (already separate from before this PR)
+- The three Monitor-tab overlay popups guarded by `{ false && ... }`
+  were dead duplicates of the live overlays mounted at the root level —
+  dropped.
+- Main view: **4493 → 3544 lines** (−21%).
+
+### Tests
+- Vitest 3 + jsdom + `@testing-library/react` + `@testing-library/jest-dom`
+  configured. Separate `vitest.config.mts` so the runner doesn't drag in
+  the renderer SDK aliases from `vite.config.mjs`.
+- **77 cases passing** across 6 test files:
+    - `WiredCreatorTools.helpers.test.ts` (18) — formatters + snapshot
+      factory.
+    - `navigatorRoomCreatorStore.test.ts` (4) — Zustand store invariants
+      with fake timers.
+    - `api-utils.test.ts` (27) — `ConvertSeconds`, `LocalizeShortNumber`,
+      `CloneObject`, `GetWiredTimeLocale`, `WiredDateToString`,
+      `PrefixUtils`.
+    - `api-utils-extra.test.ts` (16) — `ColorUtils`, `FixedSizeStack`,
+      `LocalizeFormattedNumber`.
+    - `friendly-time.test.ts` (12) — `FriendlyTime` with a deterministic
+      `LocalizeText` mock (cuts the transitive renderer-SDK import).
+- `yarn test` + `yarn test:watch` scripts added.
+
+### Logic bug fixes
+- Doorbell close button didn't close while users were pending
+  (`useEffect(() => setIsVisible(!!users.length))` overrode the close).
+- Doorbell `answer()` removed users locally before the server confirmed
+  via `RSDE_ACCEPTED`/`RSDE_REJECTED`, desyncing on network drop.
+- `RoomToolsWidgetView` wiped `nitro.room.history` from localStorage on
+  every `beforeunload` (every tab close).
+- `AvatarInfoPetTrainingPanelView` crashed if `roomSession` was null at
+  parser time.
+
+### Dead code removed
+- `src/components/login/components/RegisterDialog.tsx`.
+- `src/components/login/components/ForgotDialog.tsx`.
+- `src/components/login/components/shared.ts` (consumed only by the two
+  legacy dialogs).
+
+### Bonus
+- **`WidgetErrorBoundary`** (`src/common/error-boundary/`) — wraps the
+  `RoomWidgetsView` umbrella. A widget crash now degrades gracefully
+  (logged to `NitroLogger.error`) instead of unmounting the room.
+- **`CLAUDE.md`** at the repo root — onboarding file Claude Code reads at
+  session start. Captures the layout convention, the patterns to use,
+  what's wired up, what isn't, and the open logic bugs.
 
 ---
 
 ## How to pick the next refactor PR
 
-Foundations #1–#3 (React Query, Zustand, Vitest) are **done**. Order of
-value/risk for the next contributor:
+Foundations are **done**: React Query enabled with 4 pilot migrations,
+Zustand enabled with 1 store, Vitest with 77 cases, error boundary on
+the room widgets umbrella, `usePollSubscriptions` already hoisted to
+`RoomWidgetsView`, `WiredCreatorToolsView` fully split per tab.
+
+Remaining order of value/risk for the next contributor:
 
 1. **Migrate `useCatalog`'s read-only fetches to `useNitroQuery`.**
    Biggest expected payoff (cache + dedup + loading state for free).
-   Move the page-tree fetch first; the imperative purchase/gift flows
-   stay where they are. Adds tests against the new hooks as you go.
-2. **Mount `usePollSubscriptions` once at room-session level** instead
-   of inside `useWordQuizWidget`. The shim in `usePollWidget` works for
-   now but is wrong design: subscriptions don't belong inside an actions
-   hook. Right place is probably `RoomWidgetsView` or wherever poll
-   state should be observable.
-3. **Split `useCatalog` along the doorbell/poll lines**
+   The hook is ~1100 lines; start with the page-tree fetch and the
+   handful of fire-and-forget request/response pairs (gift wrapping
+   config, builders-club furni count, sellable pet palettes). The
+   imperative purchase / gift flows stay where they are. Add a
+   Vitest case per migration.
+2. **Split `useCatalog` along the doorbell/poll lines**
    (`useCatalogData` / `useCatalogUiState` / `useCatalogActions`,
-   siblings under `src/hooks/catalog/`). Only after #1 — React Query
-   removes ~60% of the file's responsibility, Zustand absorbs the UI
-   state slice.
-4. **Wider Vitest coverage**: add cases for `useDoorbellState` (event
-   reducer), `useNitroQuery` (timeout + cleanup), the smaller pure
-   formatters in `src/api/`. ~20 cases gets us to a meaningful smoke
-   baseline.
-5. **Per-tab split of `WiredCreatorToolsView`** (Monitor / Inspection /
-   Variables / Settings panels). Needs a tiny Zustand slice for the
-   shared state, then each tab moves to its own file. Unblocks the
-   React Compiler memoization on the parent module.
+   siblings under `src/hooks/catalog/`). Only after step 1 — React
+   Query removes ~60% of the file's responsibility, Zustand can absorb
+   the UI state slice.
+3. **Per-widget `WidgetErrorBoundary` wrapping** inside `RoomWidgetsView`.
+   The umbrella is in place; granular wrapping means a crash in one
+   widget (e.g. `ChatWidgetView`) doesn't take down the rest of the
+   room overlay. Mechanical and safe.
+4. **Hoist `WiredCreatorToolsView`'s shared state to a Zustand slice.**
+   The 4-tab split is done but the parent still passes ~25 props to
+   each tab. A slice at `src/components/wired-tools/wiredToolsStore.ts`
+   would make each tab subscribe to the keys it needs.
+5. **Address the two open logic bugs** (see the "Known logic bugs"
+   section above): the `MainView` CREATED/ENDED race needs a session
+   token; the `LayoutFurniImageView` / `LayoutAvatarImageView` async
+   fetch race needs a request-id ref (or is solved by migrating the
+   image fetch to `useNitroQuery` keyed on props).
+6. **Wider Vitest coverage** — next worthwhile targets: the
+   `useNitroQuery` adapter (timeout + cleanup + accept-filter
+   behavior, needs a stub for `@nitrots/nitro-renderer`),
+   `useDoorbellState`/`useUserChooserState` event-reducer logic
+   (needs the same renderer stub).
+
+Skipped intentionally and documented in commit messages:
+
+- `usePetPackageWidget` and `useWordQuizWidget` god-hook splits — their
+  "actions" mutate internal state, so a clean data/actions split would
+  need either action arguments or a shared store first.
+- `useChatInputWidget` / `useChatWidget` / `useAvatarInfoWidget` —
+  large state machines, need per-file design before a mechanical split.
 
 Anything else (the `LoginView` dialog split, the
 `react-compiler/react-compiler` warnings on the remaining big files,
