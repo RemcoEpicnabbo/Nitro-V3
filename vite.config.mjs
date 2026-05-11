@@ -7,8 +7,20 @@ const legacyRendererRoot = resolve(__dirname, '..', 'renderer');
 const currentRendererRoot = resolve(__dirname, '..', 'Nitro_Render_V3');
 const rendererRoot = existsSync(currentRendererRoot) ? currentRendererRoot : legacyRendererRoot;
 
+const ReactCompilerConfig = {
+    target: '19'
+};
+
 export default defineConfig({
-    plugins: [ react() ],
+    plugins: [
+        react({
+            babel: {
+                plugins: [
+                    [ 'babel-plugin-react-compiler', ReactCompilerConfig ]
+                ]
+            }
+        })
+    ],
     server: {
         fs: {
             allow: [

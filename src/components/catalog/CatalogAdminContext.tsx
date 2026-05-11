@@ -280,7 +280,7 @@ export const CatalogAdminProvider: FC<{ children: ReactNode }> = ({ children }) 
     }, []);
 
     return (
-        <CatalogAdminContext.Provider value={ {
+        <CatalogAdminContext value={ {
             adminMode, setAdminMode,
             editingOffer, setEditingOffer,
             editingPageData, setEditingPageData,
@@ -293,6 +293,6 @@ export const CatalogAdminProvider: FC<{ children: ReactNode }> = ({ children }) 
             publishCatalog
         } }>
             { children }
-        </CatalogAdminContext.Provider>
+        </CatalogAdminContext>
     );
 };

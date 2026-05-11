@@ -215,9 +215,9 @@ export const UiSettingsProvider: FC<PropsWithChildren> = ({ children }) =>
     }, [ settings ]);
 
     return (
-        <UiSettingsContext.Provider value={ { settings, isCustomActive, updateSettings, resetSettings, getHeaderStyle, getTabsStyle, getAccentColor } }>
+        <UiSettingsContext value={ { settings, isCustomActive, updateSettings, resetSettings, getHeaderStyle, getTabsStyle, getAccentColor } }>
             { children }
-        </UiSettingsContext.Provider>
+        </UiSettingsContext>
     );
 };
 

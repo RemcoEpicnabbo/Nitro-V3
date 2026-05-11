@@ -1,4 +1,4 @@
-import { Dispatch, FC, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import { Dispatch, FC, SetStateAction, use, useCallback, useMemo, useState } from 'react';
 import { Base, Grid, Flex, NitroCardView, NitroCardHeaderView, NitroCardTabsView, NitroCardTabsItemView, NitroCardContentView, Text } from '../../common';
 import { useRoom } from '../../hooks';
 import { GetOptionalConfigurationValue } from '../../api';
@@ -25,6 +25,20 @@ type TabType = typeof TABS[number];
 
 type RemoteData = Partial<Record<'backgrounds.data' | 'stands.data' | 'overlays.data' | 'cards.data', any[]>>;
 
+let backgroundsDataPromise: Promise<RemoteData | null> | null = null;
+
+const fetchBackgroundsData = (): Promise<RemoteData | null> =>
+{
+    if(backgroundsDataPromise) return backgroundsDataPromise;
+
+    backgroundsDataPromise = fetch(configFileUrl('infostand_backgrounds.json'), { credentials: 'omit' })
+        .then(r => r.ok ? r.json() : null)
+        .then(json => (json && typeof json === 'object') ? json as RemoteData : null)
+        .catch(() => null);
+
+    return backgroundsDataPromise;
+};
+
 export const BackgroundsView: FC<BackgroundsViewProps> = ({
     setIsVisible,
     selectedBackground,
@@ -37,17 +51,8 @@ export const BackgroundsView: FC<BackgroundsViewProps> = ({
     setSelectedCardBackground
 }) => {
     const [activeTab, setActiveTab] = useState<TabType>('backgrounds');
-    const [remoteData, setRemoteData] = useState<RemoteData | null>(null);
+    const remoteData = use(fetchBackgroundsData());
     const { roomSession } = useRoom();
-
-    useEffect(() => {
-        let cancelled = false;
-        fetch(configFileUrl('infostand_backgrounds.json'), { credentials: 'omit' })
-            .then(r => r.ok ? r.json() : null)
-            .then(json => { if(!cancelled && json && typeof json === 'object') setRemoteData(json as RemoteData); })
-            .catch(() => {});
-        return () => { cancelled = true; };
-    }, []);
 
     const processData = useCallback((configData: any[], idField: string): ItemData[] => {
         if (!configData?.length) return [];

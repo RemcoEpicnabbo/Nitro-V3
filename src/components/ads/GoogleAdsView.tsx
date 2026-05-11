@@ -9,8 +9,6 @@ interface AdsenseConfig {
     fullWidthResponsive?: boolean;
 }
 
-const ADSENSE_SCRIPT_ID = 'google-adsense-script';
-
 const parsePublisherIdFromAdsTxt = (text: string): string | null => {
     for (const rawLine of text.split(/\r?\n/)) {
         const line = rawLine.split('#')[0].trim();
@@ -22,18 +20,6 @@ const parsePublisherIdFromAdsTxt = (text: string): string | null => {
         if (/^pub-\d+$/.test(pub)) return pub;
     }
     return null;
-};
-
-const ensureAdsenseScript = (publisherId: string): void => {
-    if (typeof document === 'undefined') return;
-    if (document.getElementById(ADSENSE_SCRIPT_ID)) return;
-
-    const script = document.createElement('script');
-    script.id = ADSENSE_SCRIPT_ID;
-    script.async = true;
-    script.crossOrigin = 'anonymous';
-    script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-${ publisherId }`;
-    document.head.appendChild(script);
 };
 
 export const GoogleAdsView: FC<{}> = () => {
@@ -96,11 +82,6 @@ export const GoogleAdsView: FC<{}> = () => {
     }, []);
 
     useEffect(() => {
-        if (!isOpen || !publisherId || !config) return;
-        ensureAdsenseScript(publisherId);
-    }, [ isOpen, publisherId, config ]);
-
-    useEffect(() => {
         if (!isOpen) {
             pushedRef.current = false;
             return;
@@ -138,6 +119,11 @@ export const GoogleAdsView: FC<{}> = () => {
 
     return (
         <NitroCardView className="nitro-google-ads" uniqueKey="google-ads" theme="primary">
+            { publisherId &&
+                <script
+                    async
+                    crossOrigin="anonymous"
+                    src={ `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-${ publisherId }` } /> }
             <NitroCardHeaderView headerText="Sponsored" onCloseClick={ () => setIsOpen(false) } />
             <NitroCardContentView>
                 <div className="flex items-center justify-center w-[300px] h-[250px] bg-white">

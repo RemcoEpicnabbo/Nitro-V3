@@ -1,5 +1,5 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { DetailedHTMLProps, Fragment, HTMLAttributes, ReactElement, forwardRef, useEffect, useRef, useState } from 'react';
+import { DetailedHTMLProps, Fragment, HTMLAttributes, ReactElement, Ref, useEffect, useRef, useState } from 'react';
 import { classNames } from './classNames';
 import { NitroLimitedEditionStyledNumberView } from './limited-edition';
 import { styleNames } from './styleNames';
@@ -150,7 +150,7 @@ const InfiniteGridRoot = <T,>(props: Props<T>) =>
     );
 };
 
-const InfiniteGridItem = forwardRef<HTMLDivElement, {
+type InfiniteGridItemProps = {
     itemImage?: string;
     itemColor?: string;
     itemActive?: boolean;
@@ -161,9 +161,11 @@ const InfiniteGridItem = forwardRef<HTMLDivElement, {
     itemUnseen?: boolean;
     itemHighlight?: boolean;
     disabled?: boolean;
-} & DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>>((props, ref) =>
+    ref?: Ref<HTMLDivElement>;
+} & DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
+
+const InfiniteGridItem = ({ ref, itemImage = undefined, itemColor = undefined, itemActive = false, itemCount = 1, itemCountMinimum = 1, itemUniqueSoldout = false, itemUniqueNumber = -2, itemUnseen = false, itemHighlight = false, disabled = false, className = null, style = {}, children = null, ...rest }: InfiniteGridItemProps) =>
 {
-    const { itemImage = undefined, itemColor = undefined, itemActive = false, itemCount = 1, itemCountMinimum = 1, itemUniqueSoldout = false, itemUniqueNumber = -2, itemUnseen = false, itemHighlight = false, disabled = false, className = null, style = {}, children = null, ...rest } = props;
     const [ backgroundImageUrl, setBackgroundImageUrl ] = useState<string>(null);
     const disposed = useRef<boolean>(false);
 
@@ -238,9 +240,7 @@ const InfiniteGridItem = forwardRef<HTMLDivElement, {
             { children }
         </div>
     );
-});
-
-InfiniteGridItem.displayName = 'InfiniteGridItem';
+};
 
 export const InfiniteGrid = Object.assign(InfiniteGridRoot, {
     Item: InfiniteGridItem

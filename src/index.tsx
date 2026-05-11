@@ -1,5 +1,8 @@
+import { Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
+import { ErrorBoundary } from 'react-error-boundary';
 import { App } from './App';
+import { LoadingView } from './components/loading/LoadingView';
 
 import './css/index.css';
 
@@ -40,4 +43,16 @@ import './css/toolbar/ToolBar.css';
 
 import './css/widgets/FurnitureWidgets.css';
 
-createRoot(document.getElementById('root')).render(<App />);
+createRoot(document.getElementById('root')).render(
+    <ErrorBoundary
+        fallbackRender={ ({ error }) => (
+            <LoadingView
+                isError={ true }
+                message={ `Something went wrong.\n${ (error as Error)?.message ?? 'Unknown error' }` }
+                homeUrl={ window.location.origin + '/' } />
+        ) }>
+        <Suspense fallback={ <LoadingView message="Loading…" /> }>
+            <App />
+        </Suspense>
+    </ErrorBoundary>
+);
