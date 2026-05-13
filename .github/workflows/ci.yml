@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - 'feat/**'
+  pull_request:
+
+jobs:
+  check:
+    name: Type check + tests
+    runs-on: ubuntu-latest
+    steps:
+      # The build/dev/typecheck setup expects the Nitro renderer SDK to
+      # live as a sibling of this repo (see CLAUDE.md → Setup walkthrough).
+      # Mirror that here by checking the client into <workspace>/Nitro-V3
+      # and the renderer into <workspace>/Nitro_Render_V3.
+      - name: Checkout Nitro-V3
+        uses: actions/checkout@v4
+        with:
+          path: Nitro-V3
+
+      - name: Checkout Nitro_Render_V3 (sibling)
+        uses: actions/checkout@v4
+        with:
+          repository: duckietm/Nitro_Render_V3
+          path: Nitro_Render_V3
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: yarn
+          cache-dependency-path: |
+            Nitro-V3/yarn.lock
+            Nitro_Render_V3/yarn.lock
+
+      # The renderer SDK is consumed via a filesystem symlink in
+      # node_modules/@nitrots/nitro-renderer; create it explicitly so
+      # tsgo (TS 7 native preview) can resolve the tsconfig `include`
+      # entry pointing at the renderer's `src/**/*.ts`.
+      - name: Symlink renderer into client node_modules
+        run: |
+          mkdir -p Nitro-V3/node_modules/@nitrots
+          ln -sfn ../../../Nitro_Render_V3 Nitro-V3/node_modules/@nitrots/nitro-renderer
+
+      - name: Install renderer SDK deps
+        working-directory: Nitro_Render_V3
+        run: yarn install --frozen-lockfile
+
+      - name: Install client deps
+        working-directory: Nitro-V3
+        run: yarn install --frozen-lockfile
+
+      - name: Type check (tsgo)
+        working-directory: Nitro-V3
+        run: yarn typecheck
+
+      - name: Vitest
+        working-directory: Nitro-V3
+        run: yarn test --run

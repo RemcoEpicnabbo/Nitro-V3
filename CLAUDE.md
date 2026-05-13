@@ -299,7 +299,10 @@ Fix shapes documented; both are reasonable PRs on their own.
 - **Skip-motivated god-hook splits are fine** — when a hook's actions
   mutate internal state, document the reason in the commit message and
   move on rather than forcing a bad split.
-- **`yarn test` must stay green** on every commit. Currently 113/113.
+- **`yarn test` must stay green** on every commit. Currently 163/163.
+  The GitHub Actions workflow at `.github/workflows/ci.yml` runs
+  `yarn typecheck` + `yarn test --run` on every push to `main` /
+  `feat/**` and on every PR — both must pass.
 - **Lint baseline**: don't regress. Some pre-existing errors (`FC<{}>`,
   `IMessageEvent | undefined` redundant union in the local sandbox where
   the renderer SDK isn't installed) are out of scope here.
