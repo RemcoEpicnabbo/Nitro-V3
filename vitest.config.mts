@@ -8,8 +8,8 @@ import { resolve } from 'path';
  *
  * Tests live next to their subject under `src/` (`foo.ts` + `foo.test.ts`).
  * The renderer SDK is aliased to a hand-written stub at
- * `src/__mocks__/nitro-renderer.ts` so jsdom doesn't try to evaluate
- * Pixi + the full message parser/composer registry at import time.
+ * `src/nitro-renderer.mock.ts` so jsdom doesn't try to evaluate Pixi +
+ * the full message parser/composer registry at import time.
  */
 export default defineConfig({
     test: {
@@ -21,7 +21,7 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            '@nitrots/nitro-renderer': resolve(__dirname, 'src/__mocks__/nitro-renderer.ts'),
+            '@nitrots/nitro-renderer': resolve(__dirname, 'src/nitro-renderer.mock.ts'),
             '@': resolve(__dirname, 'src')
         }
     }

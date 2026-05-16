@@ -580,7 +580,7 @@ empty-map / partial-bucket branches of the offer lookup).
       `DOORBELL`, dedup duplicates, remove on `RSDE_ACCEPTED` /
       `RSDE_REJECTED`, ignore stale events, unsubscribe on unmount.
 
-- **Renderer-SDK mock at `src/__mocks__/nitro-renderer.ts`** —
+- **Renderer-SDK mock at `src/nitro-renderer.mock.ts`** —
   `vitest.config.mts` aliases `@nitrots/nitro-renderer` over this file
   so jsdom-hosted tests never load Pixi or the message
   parser/composer registry. The mock exports:
@@ -734,7 +734,7 @@ Remaining order of value/risk for the next contributor:
    each tab. A slice at `src/components/wired-tools/wiredToolsStore.ts`
    would make each tab subscribe to the keys it needs.
 4. **Widen the component/hook Vitest coverage.** The renderer-SDK
-   mock layer is in place (`src/__mocks__/nitro-renderer.ts`) and the
+   mock layer is in place (`src/nitro-renderer.mock.ts`) and the
    first two pilots — `WidgetErrorBoundary` and `useDoorbellState` —
    pass. Good follow-up targets: other `*State` hooks built on event
    reducers (`useFurniChooserState`, `useUserChooserState`,

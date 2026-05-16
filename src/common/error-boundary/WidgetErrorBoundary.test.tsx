@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { WidgetErrorBoundary } from './WidgetErrorBoundary';
 
 // `import { NitroLogger } from '@nitrots/nitro-renderer'` resolves to
-// `src/__mocks__/nitro-renderer.ts` via the alias in vitest.config.mts.
+// `src/nitro-renderer.mock.ts` via the alias in vitest.config.mts.
 // The SUT imports the same path, so both reach the same vi.fn instance.
 
 describe('WidgetErrorBoundary', () =>
