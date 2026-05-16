@@ -65,6 +65,22 @@ interface WiredCreatorToolsUiState
     isVariableHighlightActive: boolean;
     variableHighlightOverlays: VariableHighlightOverlay[];
 
+    /**
+     * Inline-editor state for the Inspection-tab variables table.
+     * `editingVariable` is the key of the variable whose value is being
+     * edited (null = none); `editingValue` is the in-flight text input.
+     * The "managed holder" pair plays the same role for the Variable
+     * Manage panel's holder rows (id 0 = none).
+     *
+     * The component uses these together with `shouldPauseVariableSnapshotRefresh`
+     * to suppress the periodic variables poll while an edit is open
+     * (so typing isn't clobbered by an incoming snapshot).
+     */
+    editingVariable: string | null;
+    editingValue: string;
+    editingManagedHolderVariableId: number;
+    editingManagedHolderValue: string;
+
     setIsVisible: (next: Updater<boolean>) => void;
     setActiveTab: (next: WiredToolsTab) => void;
     setInspectionType: (next: InspectionElementType) => void;
@@ -94,6 +110,11 @@ interface WiredCreatorToolsUiState
 
     setIsVariableHighlightActive: (next: Updater<boolean>) => void;
     setVariableHighlightOverlays: (next: VariableHighlightOverlay[]) => void;
+
+    setEditingVariable: (next: string | null) => void;
+    setEditingValue: (next: string) => void;
+    setEditingManagedHolderVariableId: (next: number) => void;
+    setEditingManagedHolderValue: (next: string) => void;
 }
 
 export const useWiredCreatorToolsUiStore = createNitroStore<WiredCreatorToolsUiState>()((set) => ({
@@ -126,6 +147,11 @@ export const useWiredCreatorToolsUiStore = createNitroStore<WiredCreatorToolsUiS
     isVariableHighlightActive: false,
     variableHighlightOverlays: [],
 
+    editingVariable: null,
+    editingValue: '',
+    editingManagedHolderVariableId: 0,
+    editingManagedHolderValue: '',
+
     setIsVisible: (next) => set(state => ({ isVisible: apply(state.isVisible, next) })),
     setActiveTab: (next) => set({ activeTab: next }),
     setInspectionType: (next) => set({ inspectionType: next }),
@@ -154,5 +180,10 @@ export const useWiredCreatorToolsUiStore = createNitroStore<WiredCreatorToolsUiS
     setSelectedUserActionVersion: (next) => set(state => ({ selectedUserActionVersion: apply(state.selectedUserActionVersion, next) })),
 
     setIsVariableHighlightActive: (next) => set(state => ({ isVariableHighlightActive: apply(state.isVariableHighlightActive, next) })),
-    setVariableHighlightOverlays: (next) => set({ variableHighlightOverlays: next })
+    setVariableHighlightOverlays: (next) => set({ variableHighlightOverlays: next }),
+
+    setEditingVariable: (next) => set({ editingVariable: next }),
+    setEditingValue: (next) => set({ editingValue: next }),
+    setEditingManagedHolderVariableId: (next) => set({ editingManagedHolderVariableId: next }),
+    setEditingManagedHolderValue: (next) => set({ editingManagedHolderValue: next })
 }));

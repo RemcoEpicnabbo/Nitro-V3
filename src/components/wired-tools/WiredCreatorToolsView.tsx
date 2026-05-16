@@ -50,8 +50,10 @@ export const WiredCreatorToolsView: FC<{}> = () =>
     const setMonitorHistorySeverityFilter = useWiredCreatorToolsUiStore(s => s.setMonitorHistorySeverityFilter);
     const monitorHistoryTypeFilter = useWiredCreatorToolsUiStore(s => s.monitorHistoryTypeFilter);
     const setMonitorHistoryTypeFilter = useWiredCreatorToolsUiStore(s => s.setMonitorHistoryTypeFilter);
-    const [ editingVariable, setEditingVariable ] = useState<string>(null);
-    const [ editingValue, setEditingValue ] = useState('');
+    const editingVariable = useWiredCreatorToolsUiStore(s => s.editingVariable);
+    const setEditingVariable = useWiredCreatorToolsUiStore(s => s.setEditingVariable);
+    const editingValue = useWiredCreatorToolsUiStore(s => s.editingValue);
+    const setEditingValue = useWiredCreatorToolsUiStore(s => s.setEditingValue);
     const [ selectedInspectionVariableKeys, setSelectedInspectionVariableKeys ] = useState<Record<InspectionElementType, string>>({
         furni: '',
         user: '',
@@ -71,8 +73,10 @@ export const WiredCreatorToolsView: FC<{}> = () =>
     const setVariableManagePage = useWiredCreatorToolsUiStore(s => s.setVariableManagePage);
     const [ selectedManagedVariableEntry, setSelectedManagedVariableEntry ] = useState<VariableManageEntry>(null);
     const [ selectedManagedHolderVariableId, setSelectedManagedHolderVariableId ] = useState(0);
-    const [ editingManagedHolderVariableId, setEditingManagedHolderVariableId ] = useState(0);
-    const [ editingManagedHolderValue, setEditingManagedHolderValue ] = useState('');
+    const editingManagedHolderVariableId = useWiredCreatorToolsUiStore(s => s.editingManagedHolderVariableId);
+    const setEditingManagedHolderVariableId = useWiredCreatorToolsUiStore(s => s.setEditingManagedHolderVariableId);
+    const editingManagedHolderValue = useWiredCreatorToolsUiStore(s => s.editingManagedHolderValue);
+    const setEditingManagedHolderValue = useWiredCreatorToolsUiStore(s => s.setEditingManagedHolderValue);
     const isManagedGiveOpen = useWiredCreatorToolsUiStore(s => s.isManagedGiveOpen);
     const setIsManagedGiveOpen = useWiredCreatorToolsUiStore(s => s.setIsManagedGiveOpen);
     const [ managedGiveVariableItemId, setManagedGiveVariableItemId ] = useState(0);
@@ -3121,9 +3125,6 @@ export const WiredCreatorToolsView: FC<{}> = () =>
                                 setSelectedInspectionVariableKeys(prev => ({ ...prev, [inspectionType]: variable.key }));
                                 beginVariableEdit(variable);
                             } }
-                            editingVariable={ editingVariable }
-                            editingValue={ editingValue }
-                            onEditingValueChange={ setEditingValue }
                             onCancelVariableEdit={ cancelVariableEdit }
                             onVariableInputKeyDown={ onVariableInputKeyDown }
                             onBeginVariableEdit={ variable =>

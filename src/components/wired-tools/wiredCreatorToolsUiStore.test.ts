@@ -24,7 +24,11 @@ const INITIAL = {
     selectedUserLiveState: null,
     selectedUserActionVersion: 0,
     isVariableHighlightActive: false,
-    variableHighlightOverlays: []
+    variableHighlightOverlays: [],
+    editingVariable: null,
+    editingValue: '',
+    editingManagedHolderVariableId: 0,
+    editingManagedHolderValue: ''
 };
 
 describe('useWiredCreatorToolsUiStore', () =>
@@ -60,6 +64,10 @@ describe('useWiredCreatorToolsUiStore', () =>
         expect(state.selectedUserActionVersion).toBe(0);
         expect(state.isVariableHighlightActive).toBe(false);
         expect(state.variableHighlightOverlays).toEqual([]);
+        expect(state.editingVariable).toBeNull();
+        expect(state.editingValue).toBe('');
+        expect(state.editingManagedHolderVariableId).toBe(0);
+        expect(state.editingManagedHolderValue).toBe('');
     });
 
     describe('setIsVisible', () =>
@@ -354,6 +362,46 @@ describe('useWiredCreatorToolsUiStore', () =>
 
             expect(useWiredCreatorToolsUiStore.getState().isVariableHighlightActive).toBe(true);
             expect(useWiredCreatorToolsUiStore.getState().variableHighlightOverlays).toEqual([ overlay ]);
+        });
+    });
+
+    describe('inline editor', () =>
+    {
+        it('setEditingVariable + setEditingValue track the in-flight edit', () =>
+        {
+            useWiredCreatorToolsUiStore.getState().setEditingVariable('@state');
+            useWiredCreatorToolsUiStore.getState().setEditingValue('3');
+
+            expect(useWiredCreatorToolsUiStore.getState().editingVariable).toBe('@state');
+            expect(useWiredCreatorToolsUiStore.getState().editingValue).toBe('3');
+        });
+
+        it('setEditingVariable(null) clears the edit (commit / cancel path)', () =>
+        {
+            useWiredCreatorToolsUiStore.getState().setEditingVariable('@state');
+            useWiredCreatorToolsUiStore.getState().setEditingValue('3');
+
+            useWiredCreatorToolsUiStore.getState().setEditingVariable(null);
+            useWiredCreatorToolsUiStore.getState().setEditingValue('');
+
+            expect(useWiredCreatorToolsUiStore.getState().editingVariable).toBeNull();
+            expect(useWiredCreatorToolsUiStore.getState().editingValue).toBe('');
+        });
+
+        it('managed-holder editor pair uses 0 as "no row being edited"', () =>
+        {
+            useWiredCreatorToolsUiStore.getState().setEditingManagedHolderVariableId(42);
+            useWiredCreatorToolsUiStore.getState().setEditingManagedHolderValue('15');
+
+            expect(useWiredCreatorToolsUiStore.getState().editingManagedHolderVariableId).toBe(42);
+            expect(useWiredCreatorToolsUiStore.getState().editingManagedHolderValue).toBe('15');
+
+            // Reset path used after commit / on blur.
+            useWiredCreatorToolsUiStore.getState().setEditingManagedHolderVariableId(0);
+            useWiredCreatorToolsUiStore.getState().setEditingManagedHolderValue('');
+
+            expect(useWiredCreatorToolsUiStore.getState().editingManagedHolderVariableId).toBe(0);
+            expect(useWiredCreatorToolsUiStore.getState().editingManagedHolderValue).toBe('');
         });
     });
 });

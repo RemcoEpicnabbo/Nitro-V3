@@ -34,10 +34,10 @@ export interface WiredInspectionTabViewProps
     selectedInspectionVariableKey: string;
     onSelectInspectionVariable: (variable: InspectionVariable) => void;
 
-    // inline editor
-    editingVariable: string;
-    editingValue: string;
-    onEditingValueChange: (value: string) => void;
+    // inline editor — `editingVariable` / `editingValue` come from the
+    // store; this tab only needs the cancel / keydown / begin handlers
+    // since each tab consumer wraps `onBeginVariableEdit` with its own
+    // bookkeeping (variable-key tracking).
     onCancelVariableEdit: () => void;
     onVariableInputKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
     onBeginVariableEdit: (variable: InspectionVariable) => void;
@@ -73,9 +73,6 @@ export const WiredInspectionTabView = (props: WiredInspectionTabViewProps) =>
         displayedVariables,
         selectedInspectionVariableKey,
         onSelectInspectionVariable,
-        editingVariable,
-        editingValue,
-        onEditingValueChange,
         onCancelVariableEdit,
         onVariableInputKeyDown,
         onBeginVariableEdit,
@@ -94,6 +91,9 @@ export const WiredInspectionTabView = (props: WiredInspectionTabViewProps) =>
     const setInspectionType = useWiredCreatorToolsUiStore(s => s.setInspectionType);
     const isInspectionGiveOpen = useWiredCreatorToolsUiStore(s => s.isInspectionGiveOpen);
     const setIsInspectionGiveOpen = useWiredCreatorToolsUiStore(s => s.setIsInspectionGiveOpen);
+    const editingVariable = useWiredCreatorToolsUiStore(s => s.editingVariable);
+    const editingValue = useWiredCreatorToolsUiStore(s => s.editingValue);
+    const setEditingValue = useWiredCreatorToolsUiStore(s => s.setEditingValue);
 
     return (
         <div className="p-3 min-h-[360px] flex gap-4">
@@ -173,7 +173,7 @@ export const WiredInspectionTabView = (props: WiredInspectionTabViewProps) =>
                                                             value={ editingValue }
                                                             onClick={ event => event.stopPropagation() }
                                                             onBlur={ onCancelVariableEdit }
-                                                            onChange={ event => onEditingValueChange(event.target.value) }
+                                                            onChange={ event => setEditingValue(event.target.value) }
                                                             onKeyDownCapture={ onVariableInputKeyDown } /> }
                                                     { (editingVariable !== variable.key) && !variable.editable && <span className={ variable.valueClassName }>{ variable.value }</span> }
                                                     { (editingVariable !== variable.key) && variable.editable &&
