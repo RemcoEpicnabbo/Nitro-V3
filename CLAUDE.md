@@ -12,10 +12,13 @@ infrastructure (TanStack Query, Zustand, Vitest, React Compiler, error
 boundaries), split a few god-hooks, and audit logic bugs along the way.
 PR is **#2** on `simoleo89/Nitro-V3`.
 
-On top of the modernization work this branch also picks up a couple of
-upstream feature commits that lived only on `duckietm/Nitro-V3` (PR #126):
-reset password / email / change username under user settings, and the
-wear-badge popup fix.
+Upstream `duckietm/Nitro-V3` (`origin/Dev`) is merged in through
+`b2318b9` as of 2026-05-18 (merge commit `779a98c`). That brings in
+JSON5 config support, user-settings (reset password / email / change
+username), wear-badge popup fix, login screen fix, About update, and
+the offer-selection refactor. When syncing the next batch of upstream
+commits, expect conflicts in `App.tsx` / `bootstrap.ts` / `LoginView.tsx`
+on React 19 imports — always keep the modernized local version.
 
 Local-dev game assets are served by a small Vite plugin (`sirv` middleware
 mounted on `/nitro-assets` and `/swf`, reading from
@@ -265,7 +268,7 @@ into `configurePreviewServer` so `yarn preview` keeps working.
 | `WidgetErrorBoundary` | `RoomWidgetsView` umbrella + per-widget wrap on all 13 room widgets and all 20 furniture widgets (so a crash in one widget no longer takes down its siblings) |
 | Vitest | 193/193 cases — pure helpers + 2 Zustand store suites (`navigatorRoomCreatorStore`, `wiredCreatorToolsUiStore`) + 2 component-/hook-level pilots (WidgetErrorBoundary, useDoorbellState) on top of the renderer-SDK mock at `src/nitro-renderer.mock.ts`, 34 cases on the catalog pure helpers, 4 contract cases on the catalog filters. **Tests are co-located** under `src/`, alongside their subject. |
 | Form Actions | Login / Register / Forgot (LoginView.tsx) |
-| Cherry-picked from `duckietm` PR #126 | `UserAccountSettingsView` (reset password / email / username under user settings), plus the wear-badge popup `canShowWearButton` gating |
+| Upstream `origin/Dev` absorbed (merge `779a98c`) | Through `b2318b9` (2026-05-18): JSON5, user-settings reset password/email/username, wear-badge popup fix, login screen fix, About, offer-selection refactor |
 
 | Not yet | Notes |
 |---|---|
