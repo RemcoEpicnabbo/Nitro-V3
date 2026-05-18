@@ -28,7 +28,9 @@ const INITIAL = {
     editingVariable: null,
     editingValue: '',
     editingManagedHolderVariableId: 0,
-    editingManagedHolderValue: ''
+    editingManagedHolderValue: '',
+    selectedInspectionVariableKeys: { furni: '', user: '', global: '' },
+    selectedVariableKeys: { furni: '', user: '', global: '', context: '' }
 };
 
 describe('useWiredCreatorToolsUiStore', () =>
@@ -68,6 +70,8 @@ describe('useWiredCreatorToolsUiStore', () =>
         expect(state.editingValue).toBe('');
         expect(state.editingManagedHolderVariableId).toBe(0);
         expect(state.editingManagedHolderValue).toBe('');
+        expect(state.selectedInspectionVariableKeys).toEqual({ furni: '', user: '', global: '' });
+        expect(state.selectedVariableKeys).toEqual({ furni: '', user: '', global: '', context: '' });
     });
 
     describe('setIsVisible', () =>
@@ -402,6 +406,56 @@ describe('useWiredCreatorToolsUiStore', () =>
 
             expect(useWiredCreatorToolsUiStore.getState().editingManagedHolderVariableId).toBe(0);
             expect(useWiredCreatorToolsUiStore.getState().editingManagedHolderValue).toBe('');
+        });
+    });
+
+    describe('variable-key records', () =>
+    {
+        it('setSelectedInspectionVariableKeys accepts the updater shape used by give/remove handlers', () =>
+        {
+            useWiredCreatorToolsUiStore.getState().setSelectedInspectionVariableKeys(prev => ({ ...prev, furni: '@state' }));
+            expect(useWiredCreatorToolsUiStore.getState().selectedInspectionVariableKeys).toEqual({ furni: '@state', user: '', global: '' });
+
+            useWiredCreatorToolsUiStore.getState().setSelectedInspectionVariableKeys(prev => ({ ...prev, user: 'username' }));
+            expect(useWiredCreatorToolsUiStore.getState().selectedInspectionVariableKeys).toEqual({ furni: '@state', user: 'username', global: '' });
+        });
+
+        it('setSelectedVariableKeys preserves untouched keys when patching a single type', () =>
+        {
+            useWiredCreatorToolsUiStore.getState().setSelectedVariableKeys(prev => ({ ...prev, furni: '@state', user: 'level' }));
+            useWiredCreatorToolsUiStore.getState().setSelectedVariableKeys(prev => ({ ...prev, context: 'hotel.uptime' }));
+
+            expect(useWiredCreatorToolsUiStore.getState().selectedVariableKeys).toEqual({
+                furni: '@state',
+                user: 'level',
+                global: '',
+                context: 'hotel.uptime'
+            });
+        });
+
+        it('setSelectedVariableKeys accepts a direct record (definition-sync write path)', () =>
+        {
+            useWiredCreatorToolsUiStore.getState().setSelectedVariableKeys({
+                furni: '~teleport.target_id',
+                user: 'username',
+                global: 'hotel.uptime',
+                context: 'event.type'
+            });
+
+            expect(useWiredCreatorToolsUiStore.getState().selectedVariableKeys.furni).toBe('~teleport.target_id');
+            expect(useWiredCreatorToolsUiStore.getState().selectedVariableKeys.context).toBe('event.type');
+        });
+
+        it('variable-key records persist across the panel close/reopen lifecycle', () =>
+        {
+            useWiredCreatorToolsUiStore.getState().setSelectedVariableKeys(prev => ({ ...prev, furni: '@state' }));
+            useWiredCreatorToolsUiStore.getState().setSelectedInspectionVariableKeys(prev => ({ ...prev, user: 'level' }));
+
+            useWiredCreatorToolsUiStore.getState().setIsVisible(false);
+            useWiredCreatorToolsUiStore.getState().setIsVisible(true);
+
+            expect(useWiredCreatorToolsUiStore.getState().selectedVariableKeys.furni).toBe('@state');
+            expect(useWiredCreatorToolsUiStore.getState().selectedInspectionVariableKeys.user).toBe('level');
         });
     });
 });

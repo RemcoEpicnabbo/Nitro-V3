@@ -54,11 +54,8 @@ export const WiredCreatorToolsView: FC<{}> = () =>
     const setEditingVariable = useWiredCreatorToolsUiStore(s => s.setEditingVariable);
     const editingValue = useWiredCreatorToolsUiStore(s => s.editingValue);
     const setEditingValue = useWiredCreatorToolsUiStore(s => s.setEditingValue);
-    const [ selectedInspectionVariableKeys, setSelectedInspectionVariableKeys ] = useState<Record<InspectionElementType, string>>({
-        furni: '',
-        user: '',
-        global: ''
-    });
+    const selectedInspectionVariableKeys = useWiredCreatorToolsUiStore(s => s.selectedInspectionVariableKeys);
+    const setSelectedInspectionVariableKeys = useWiredCreatorToolsUiStore(s => s.setSelectedInspectionVariableKeys);
     const isInspectionGiveOpen = useWiredCreatorToolsUiStore(s => s.isInspectionGiveOpen);
     const setIsInspectionGiveOpen = useWiredCreatorToolsUiStore(s => s.setIsInspectionGiveOpen);
     const [ inspectionGiveVariableItemId, setInspectionGiveVariableItemId ] = useState(0);
@@ -87,12 +84,8 @@ export const WiredCreatorToolsView: FC<{}> = () =>
     const setVariableHighlightOverlays = useWiredCreatorToolsUiStore(s => s.setVariableHighlightOverlays);
     const variableHighlightObjectsRef = useRef<Array<{ category: number; objectId: number; }>>([]);
     const shouldPauseVariableSnapshotRefresh = (!!editingVariable || !!editingManagedHolderVariableId || isInspectionGiveOpen || isManagedGiveOpen);
-    const [ selectedVariableKeys, setSelectedVariableKeys ] = useState<Record<VariablesElementType, string>>({
-        furni: VARIABLE_DEFINITIONS.furni[0].key,
-        user: VARIABLE_DEFINITIONS.user[0].key,
-        global: VARIABLE_DEFINITIONS.global[0].key,
-        context: VARIABLE_DEFINITIONS.context[0].key
-    });
+    const selectedVariableKeys = useWiredCreatorToolsUiStore(s => s.selectedVariableKeys);
+    const setSelectedVariableKeys = useWiredCreatorToolsUiStore(s => s.setSelectedVariableKeys);
     const { roomSession = null } = useRoom();
     const { ownUser: tradeOwnUser = null, otherUser: tradeOtherUser = null, isTrading = false } = useInventoryTrade();
     const { roomSettings, userVariableDefinitions, userVariableAssignments, furniVariableDefinitions, furniVariableAssignments, roomVariableDefinitions, roomVariableAssignments, contextVariableDefinitions, requestUserVariables, assignUserVariable, removeUserVariable, updateUserVariableValue, assignFurniVariable, removeFurniVariable, updateFurniVariableValue, updateRoomVariableValue } = useWiredTools();

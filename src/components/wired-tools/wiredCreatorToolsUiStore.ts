@@ -81,6 +81,16 @@ interface WiredCreatorToolsUiState
     editingManagedHolderVariableId: number;
     editingManagedHolderValue: string;
 
+    /**
+     * Currently selected variable key per tab/type, used as the "active"
+     * row in the Inspection and Variables tabs. The sync effects in
+     * `WiredCreatorToolsView` auto-pick the first available key whenever
+     * the definitions list for that type changes, so we initialize empty
+     * — the component's first paint populates them.
+     */
+    selectedInspectionVariableKeys: Record<InspectionElementType, string>;
+    selectedVariableKeys: Record<VariablesElementType, string>;
+
     setIsVisible: (next: Updater<boolean>) => void;
     setActiveTab: (next: WiredToolsTab) => void;
     setInspectionType: (next: InspectionElementType) => void;
@@ -115,6 +125,9 @@ interface WiredCreatorToolsUiState
     setEditingValue: (next: string) => void;
     setEditingManagedHolderVariableId: (next: number) => void;
     setEditingManagedHolderValue: (next: string) => void;
+
+    setSelectedInspectionVariableKeys: (next: Updater<Record<InspectionElementType, string>>) => void;
+    setSelectedVariableKeys: (next: Updater<Record<VariablesElementType, string>>) => void;
 }
 
 export const useWiredCreatorToolsUiStore = createNitroStore<WiredCreatorToolsUiState>()((set) => ({
@@ -152,6 +165,9 @@ export const useWiredCreatorToolsUiStore = createNitroStore<WiredCreatorToolsUiS
     editingManagedHolderVariableId: 0,
     editingManagedHolderValue: '',
 
+    selectedInspectionVariableKeys: { furni: '', user: '', global: '' },
+    selectedVariableKeys: { furni: '', user: '', global: '', context: '' },
+
     setIsVisible: (next) => set(state => ({ isVisible: apply(state.isVisible, next) })),
     setActiveTab: (next) => set({ activeTab: next }),
     setInspectionType: (next) => set({ inspectionType: next }),
@@ -185,5 +201,8 @@ export const useWiredCreatorToolsUiStore = createNitroStore<WiredCreatorToolsUiS
     setEditingVariable: (next) => set({ editingVariable: next }),
     setEditingValue: (next) => set({ editingValue: next }),
     setEditingManagedHolderVariableId: (next) => set({ editingManagedHolderVariableId: next }),
-    setEditingManagedHolderValue: (next) => set({ editingManagedHolderValue: next })
+    setEditingManagedHolderValue: (next) => set({ editingManagedHolderValue: next }),
+
+    setSelectedInspectionVariableKeys: (next) => set(state => ({ selectedInspectionVariableKeys: apply(state.selectedInspectionVariableKeys, next) })),
+    setSelectedVariableKeys: (next) => set(state => ({ selectedVariableKeys: apply(state.selectedVariableKeys, next) }))
 }));
