@@ -1,4 +1,5 @@
 import { GetConfiguration } from '@nitrots/nitro-renderer';
+import JSON5 from 'json5';
 import { configFileUrl, getClientMode, installSecureFetch } from './secure-assets';
 
 const ensureMobileViewport = () =>
@@ -76,7 +77,16 @@ const loadClientMode = async () =>
 
         if(!response.ok) throw new Error(`HTTP ${ response.status }`);
 
-        (window as any).__nitroClientMode = await response.json();
+        const text = await response.text();
+
+        try
+        {
+            (window as any).__nitroClientMode = JSON.parse(text);
+        }
+        catch
+        {
+            (window as any).__nitroClientMode = JSON5.parse(text);
+        }
         setBootDebug('boot: client-mode loaded');
     }
     catch(error)

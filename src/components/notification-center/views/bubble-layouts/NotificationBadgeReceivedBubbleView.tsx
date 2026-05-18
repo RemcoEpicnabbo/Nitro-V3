@@ -1,5 +1,5 @@
 import { RequestBadgesComposer } from '@nitrots/nitro-renderer';
-import { FC, useEffect, useEffectEvent } from 'react';
+import { FC, useEffect } from 'react';
 import { LocalizeText, NotificationBubbleItem, SendMessageComposer } from '../../../../api';
 import { Flex, LayoutNotificationBubbleView, LayoutNotificationBubbleViewProps, Text } from '../../../../common';
 import { useInventoryBadges } from '../../../../hooks';
@@ -14,15 +14,10 @@ export const NotificationBadgeReceivedBubbleView: FC<NotificationBadgeReceivedBu
     const { item = null, onClose = null, ...rest } = props;
     const { activeBadgeCodes = [], toggleBadge = null, isWearingBadge = null, canWearBadges = null } = useInventoryBadges();
 
-    const requestBadgesIfEmpty = useEffectEvent(() =>
-    {
-        if(activeBadgeCodes.length === 0) SendMessageComposer(new RequestBadgesComposer());
-    });
-
     useEffect(() =>
     {
-        requestBadgesIfEmpty();
-    }, []);
+        if(activeBadgeCodes.length === 0) SendMessageComposer(new RequestBadgesComposer());
+    }, [ activeBadgeCodes.length ]);
 
     const badgeCode = item?.linkUrl ?? null;
     const isLoaded = activeBadgeCodes.length > 0;
