@@ -103,7 +103,21 @@ information when forced into a single selector.
   `useSyncExternalStore` wrapper pairing the renderer's
   `EventDispatcher.subscribe()` with the `getXxxSnapshot()` getters
   added in renderer 2.1.0. Use this for readonly views over manager
-  state (`getUserDataSnapshot`, `getActiveRoomSessionSnapshot`).
+  state. Eight pre-built consumers live in
+  `src/hooks/session/useSessionSnapshots.ts` (userData / activeRoomSession
+  / ignoredUsers / groupBadges / soundVolumes / roomUserList + scalar
+  derivations `useIsUserIgnored`, `useGroupBadge`), each with defensive
+  `typeof` guards against a stale renderer bundle.
+
+  **Note (2026-05-18):** the first three pilot migrations (`useSessionInfo`,
+  `useChatWidget.ownUserId`, `AvatarInfoWidgetAvatarView` Ignore-menu)
+  were rolled back in `e142efd` after a persistent runtime error
+  `(intermediate value)() is undefined` at `ToolbarView.tsx:46` that
+  the vite-alias fix (`790ad2b`) and defensive guards (`c35a2d4`) could
+  not eliminate. Suspected interaction: `useBetween` +
+  `useSyncExternalStore` + React Compiler. Before retrying any
+  migration here, exercise the snapshot hooks from a non-`useBetween`
+  consumer in a low-blast-radius widget first to isolate the cause.
 
 For state owned outside the listener (the `useState` + `setState(prev =>
 applyX(prev, event))` pattern), keep using `useNitroEvent` /
