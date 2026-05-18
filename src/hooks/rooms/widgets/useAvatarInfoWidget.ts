@@ -8,9 +8,21 @@ import { useObjectDeselectedEvent, useObjectRollOutEvent, useObjectRollOverEvent
 import { useRoom } from '../useRoom';
 import { applyFavouriteGroupUpdate, applyUserBadgesUpdate, applyUserFigureUpdate } from './avatarInfo.reducers';
 
+// Time window after a directional / move-state user click during
+// which the context menu must NOT open. Set on `globalThis.__nitroAvatarClickControl`
+// by the click-routing code in the room engine.
+const CLICK_USER_DEBOUNCE_MS = 120;
+
+interface NitroAvatarClickControl
+{
+    suppressMenuUntil: number;
+}
+
+const getAvatarClickControl = (): NitroAvatarClickControl | null =>
+    (globalThis as unknown as { __nitroAvatarClickControl?: NitroAvatarClickControl }).__nitroAvatarClickControl ?? null;
+
 const useAvatarInfoWidgetState = () =>
 {
-    const CLICK_USER_DEBOUNCE_MS = 120;
     const [ avatarInfo, setAvatarInfo ] = useState<IAvatarInfo>(null);
     const [ activeNameBubble, setActiveNameBubble ] = useState<AvatarInfoName>(null);
     const [ nameBubbles, setNameBubbles ] = useState<AvatarInfoName[]>([]);
@@ -33,7 +45,7 @@ const useAvatarInfoWidgetState = () =>
 
     const isAvatarMenuBlocked = () =>
     {
-        const control = (globalThis as any).__nitroAvatarClickControl;
+        const control = getAvatarClickControl();
 
         return !!control && (control.suppressMenuUntil > Date.now());
     };

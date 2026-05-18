@@ -1,7 +1,8 @@
-import { GetGuestRoomResultEvent, GetRoomEngine, GetSessionDataManager, PetFigureData, RoomChatSettings, RoomChatSettingsEvent, RoomDragEvent, RoomObjectCategory, RoomObjectType, RoomObjectVariable, RoomSessionChatEvent, RoomUserData, SystemChatStyleEnum } from '@nitrots/nitro-renderer';
+import { GetGuestRoomResultEvent, GetRoomEngine, PetFigureData, RoomChatSettings, RoomChatSettingsEvent, RoomDragEvent, RoomObjectCategory, RoomObjectType, RoomObjectVariable, RoomSessionChatEvent, RoomUserData, SystemChatStyleEnum } from '@nitrots/nitro-renderer';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ChatBubbleMessage, ChatBubbleUtilities, ChatEntryType, ChatHistoryCurrentDate, GetConfigurationValue, GetRoomObjectScreenLocation, IRoomChatSettings, LocalizeText, PlaySound, RoomChatFormatter } from '../../../api';
 import { useMessageEvent, useNitroEvent } from '../../events';
+import { useUserDataSnapshot } from '../../session/useSessionSnapshots';
 import { useTranslation } from '../../translation';
 import { useRoom } from '../useRoom';
 import { useChatHistory } from './../../chat-history';
@@ -22,7 +23,11 @@ const useChatWidgetState = () =>
     const { addChatEntry, updateChatEntry } = useChatHistory();
     const { settings, translateIncoming, consumeOutgoingTranslation } = useTranslation();
     const isDisposed = useRef(false);
-    const ownUserId = (GetSessionDataManager()?.userId || -1);
+    // Reactive: a session change (re-login without reload) immediately
+    // updates the outgoing-translation owner check below. Old code read
+    // GetSessionDataManager()?.userId at hook mount and would have stayed
+    // stuck on the previous session's id.
+    const ownUserId = (useUserDataSnapshot().userId || -1);
 
     const applyTranslationToBubble = useCallback((chatMessage: ChatBubbleMessage, originalText: string, translatedText: string, detectedLanguage: string, targetLanguage: string) =>
     {
