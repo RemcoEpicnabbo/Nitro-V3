@@ -150,16 +150,54 @@ a stale renderer bundle and degrades to a frozen default snapshot if
 the renderer doesn't expose the matching getter (kept module-level so
 React's bailout still works on the degraded path).
 
-**Adoption status: zero in-tree consumers.** The first three pilot
-migrations (`useSessionInfo`, `useChatWidget.ownUserId`,
-`AvatarInfoWidgetAvatarView` Ignore/Unignore) were rolled back in
-`e142efd` after a persistent runtime error
-`(intermediate value)() is undefined` at `ToolbarView.tsx:46` that the
-vite-alias fix (`790ad2b`) and the defensive guards (`c35a2d4`) could
-not eliminate. The hooks remain available for any future opt-in
-consumer, but **do not migrate `useBetween`-shared consumers to them
-without isolated testing first** — that combination is the suspected
-cause of the bug.
+**Adoption status: three pilot consumers shipped (commit `d28819d`,
+2026-05-19).** `useSessionInfo` reads userFigure / respectsLeft /
+respectsPetLeft from `useUserDataSnapshot`; `useChatWidget.ownUserId`
+reads from the snapshot directly; `AvatarInfoWidgetAvatarView` flips
+its Ignore/Unignore menu via `useIsUserIgnored`.
+
+The original rollback (`e142efd`) was caused by a hard structural
+constraint, NOT a stale renderer or React Compiler quirk: **snapshot
+hooks (`useSyncExternalStore`-based) must NOT be called inside a
+`useBetween(stateFn)` scope.** `use-between` 1.x swaps
+`ReactCurrentDispatcher.current` with its own proxy
+(`ownDispatcher` at
+`node_modules/use-between/release/index.esm.js:54-169`) that
+re-implements only useState / useReducer / useEffect /
+useLayoutEffect / useCallback / useMemo / useRef /
+useImperativeHandle. `useSyncExternalStore` isn't on the list, so
+React resolves `dispatcher.useSyncExternalStore` to `undefined` and
+crashes on first paint — that's the original "(intermediate value)()
+is undefined" at `ToolbarView.tsx:46`. Chrome reports the same as
+`dispatcher.useSyncExternalStore is not a function`.
+
+**Fix pattern, applied to `useSessionInfo`:** call the snapshot hook
+in the OUTER exported wrapper, after `useBetween`, so it runs in the
+real React dispatcher's scope. The inner state function (the one
+`useBetween` actually proxies) keeps only useState /
+useMessageEvent / plain actions.
+
+```ts
+const useSessionInfoState = () => {
+    // ONLY use-between-safe hooks here.
+    const [chatStyleId, setChatStyleId] = useState(0);
+    // … useMessageEvent, actions …
+    return { chatStyleId, /* actions */ };
+};
+
+export const useSessionInfo = () => {
+    const shared = useBetween(useSessionInfoState);
+    const userData = useUserDataSnapshot();        // outside useBetween → ok
+    return { ...shared, userFigure: userData.figure, /* etc */ };
+};
+```
+
+Regression guard: `src/hooks/session/useSessionSnapshots.test.tsx`
+asserts the negative case (snapshot inside useBetween crashes via
+ErrorBoundary) and the positive case (outside works). A CI gate
+(`yarn lint:hooks` →
+`react-hooks/rules-of-hooks: error`) blocks any future commit that
+reintroduces hook-order issues.
 
 ### `useNitroEventState` / `useMessageEventState`
 
@@ -294,7 +332,7 @@ into `configurePreviewServer` so `yarn preview` keeps working.
 
 | Adopted | Pilot sites |
 |---|---|
-| Renderer snapshot consumer hooks (`useSessionSnapshots`) | **No in-tree consumers** — three pilot migrations rolled back in `e142efd` due to a runtime `(intermediate value)() is undefined` at `ToolbarView.tsx:46` that survived both the vite-alias fix and defensive guards. The 8 hooks (userData / activeRoomSession / ignoredUsers / groupBadges / soundVolumes / roomUserList / isUserIgnored / groupBadge) remain available as opt-in API with frozen-default fallbacks. |
+| Renderer snapshot consumer hooks (`useSessionSnapshots`) | `useSessionInfo` (userFigure / userRespectRemaining / petRespectRemaining via `useUserDataSnapshot` in the outer wrapper, outside useBetween), `useChatWidget.ownUserId` (via `useUserDataSnapshot`), `AvatarInfoWidgetAvatarView` Ignore/Unignore (via `useIsUserIgnored`). The 8 hooks (userData / activeRoomSession / ignoredUsers / groupBadges / soundVolumes / roomUserList / isUserIgnored / groupBadge) keep their typeof-guard defensive fallbacks for stale-renderer paths. |
 | `useNitroEventState` + companions (Reducer, ExternalSnapshot) | `OfferView`, `useAvatarInfoWidget` (figure/badges/group reducer), `useInventoryFurni` (pure reducers + fragments useRef) |
 | `useNitroQuery` + `useNitroEventInvalidator` | `OfferView`, `CatalogLayoutRoomAdsView`, `ModToolsChatlogView`, `CfhChatlogView`, `useGiftConfiguration`, `useUserGroups`, `useClubOffers(windowId)`, `useSellablePetPalette(breed)`, `useMarketplaceConfiguration`, `useClubGifts` (with invalidator) |
 | Zustand | `NavigatorRoomCreatorView` (`useRoomCreatorStore`), `WiredCreatorToolsView` (`useWiredCreatorToolsUiStore` — every panel-lifecycle-relevant flag, snapshot, selection, highlight, inline editor, picker chain hoisted; what's left in the component as `useState` is genuinely transient: keepSelected, globalClock, roomEnteredAt, selectedMonitorErrorType, selectedMonitorLogDetails) |
@@ -307,9 +345,9 @@ into `configurePreviewServer` so `yarn preview` keeps working.
 
 | Not yet | Notes |
 |---|---|
-| Split `useChatWidget` / `useAvatarInfoWidget` (data/actions) | Both state-driven via events with no clean imperative actions to extract — split still skip-motivated, but `useAvatarInfoWidget` got a typed `__nitroAvatarClickControl` accessor + module-scope DEBOUNCE const in 2026-05-18 (commit `05ff7df`). The `useChatWidget` reactive-`ownUserId` migration in the same commit was rolled back in `e142efd`; the hook is back on `GetSessionDataManager()?.userId` (static at mount). |
+| Split `useChatWidget` / `useAvatarInfoWidget` (data/actions) | Both state-driven via events with no clean imperative actions to extract — split still skip-motivated, but `useAvatarInfoWidget` got a typed `__nitroAvatarClickControl` accessor + module-scope DEBOUNCE const in 2026-05-18 (commit `05ff7df`). `useChatWidget.ownUserId` reactive migration re-applied 2026-05-19 in `d28819d` via `useUserDataSnapshot` (direct hook call — useChatWidget isn't wrapped in useBetween so the snapshot-outside-useBetween constraint doesn't apply). |
 | Split `usePetPackageWidget` / `useWordQuizWidget` / `useChatCommandSelector` (data/actions) | Data/actions split remains a bad fit, but all three got real modernization in 2026-05-18 instead: usePetPackageWidget → useReducer + extracted `getPetPackageNameError` pure helper + 4 tests; useWordQuizWidget → fixed stale-closure bug in `setUserAnswers` updater + `useRef` for the timeout handle; useChatCommandSelector → module-level `let` cache replaced with a Zustand store. |
-| Migrate any consumer to renderer snapshot hooks | **Blocked.** Three pilot migrations were rolled back in `e142efd` after the `useSessionInfo` migration triggered a persistent runtime error at `ToolbarView.tsx:46`. The defensive guards in `useSessionSnapshots.ts` and the umbrella vite alias (`790ad2b`) are still in place. Before retrying, isolate the cause: the suspected interaction is `useBetween` + `useSyncExternalStore` + React Compiler. Try a NON-`useBetween` consumer first (e.g. a fresh per-component hook usage in a low-blast-radius widget). |
+| Migrate more consumers to renderer snapshot hooks | **Unblocked.** Three pilot consumers shipped 2026-05-19 (`d28819d`), pattern documented above. Next candidates: any code reading from `GetSessionDataManager().userId / userName / clubLevel / securityLevel`, `GetRoomSessionManager().getActiveSession()`, or `GetSoundManager().<volume>` synchronously — those don't re-render today when the value changes. Rule: snapshot read MUST be outside any `useBetween` scope (CI gate `yarn lint:hooks` catches violations; regression test at `src/hooks/session/useSessionSnapshots.test.tsx`). |
 | Widen the component / hook test coverage | Mock layer is in place (`src/nitro-renderer.mock.ts`) and 3+ hook/component pilots pass. Good follow-up targets: `LoginView` Form Actions happy/error paths, `OfferView` with `useNitroQuery`. (Acceptable only as a side-effect of a real change — coverage growth on its own is deprioritized per session feedback.) |
 
 ## Known open logic bugs

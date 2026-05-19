@@ -109,15 +109,36 @@ information when forced into a single selector.
   derivations `useIsUserIgnored`, `useGroupBadge`), each with defensive
   `typeof` guards against a stale renderer bundle.
 
-  **Note (2026-05-18):** the first three pilot migrations (`useSessionInfo`,
-  `useChatWidget.ownUserId`, `AvatarInfoWidgetAvatarView` Ignore-menu)
-  were rolled back in `e142efd` after a persistent runtime error
-  `(intermediate value)() is undefined` at `ToolbarView.tsx:46` that
-  the vite-alias fix (`790ad2b`) and defensive guards (`c35a2d4`) could
-  not eliminate. Suspected interaction: `useBetween` +
-  `useSyncExternalStore` + React Compiler. Before retrying any
-  migration here, exercise the snapshot hooks from a non-`useBetween`
-  consumer in a low-blast-radius widget first to isolate the cause.
+  **Hard constraint — snapshot hooks must run outside `useBetween`.**
+  `use-between` 1.x swaps the React dispatcher with its own proxy
+  (`ownDispatcher` at
+  `node_modules/use-between/release/index.esm.js:54-169`) that
+  reimplements only useState / useReducer / useEffect /
+  useLayoutEffect / useCallback / useMemo / useRef /
+  useImperativeHandle. `useSyncExternalStore` is not on the list, so
+  calling a snapshot hook inside `useBetween(stateFn)` invokes
+  `undefined(...)` and crashes the first render with
+  "(intermediate value)() is undefined" (Firefox) /
+  "dispatcher.useSyncExternalStore is not a function" (Chrome). This
+  is what blocked the original 2026-05-18 migration of
+  `useSessionInfo` — the rollback (`e142efd`) was correct as a stop
+  the bleed, but neither the vite alias (`790ad2b`) nor the
+  defensive renderer-method guards (`c35a2d4`) could address it
+  because both were downstream of the dispatcher proxy.
+
+  **Fix landed 2026-05-19 (`d28819d`).** Three pilot consumers shipped:
+  `useSessionInfo` (snapshot read in the outer wrapper, after
+  `useBetween`); `useChatWidget.ownUserId` (direct hook call —
+  `useChatWidget` is not wrapped in `useBetween`);
+  `AvatarInfoWidgetAvatarView` Ignore/Unignore (direct hook call in a
+  component body via `useIsUserIgnored`). Pattern documented in
+  `CLAUDE.md` under "Patterns to use →
+  `useSessionSnapshots`". Regression guard:
+  `src/hooks/session/useSessionSnapshots.test.tsx` (negative case via
+  `ErrorBoundary` + positive case). CI gate:
+  `yarn lint:hooks` (`eslint.hooks.config.mjs` →
+  `react-hooks/rules-of-hooks: error`) wired into
+  `.github/workflows/ci.yml`.
 
 For state owned outside the listener (the `useState` + `setState(prev =>
 applyX(prev, event))` pattern), keep using `useNitroEvent` /
