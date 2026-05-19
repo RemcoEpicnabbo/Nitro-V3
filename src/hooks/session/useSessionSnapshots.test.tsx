@@ -5,7 +5,7 @@ import { Component, ReactNode, useSyncExternalStore } from 'react';
 import { useBetween } from 'use-between';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GetEventDispatcher, GetSessionDataManager } from '../../nitro-renderer.mock';
-import { useHasRankLevel, useIsRank, useUserRank } from './useSessionSnapshots';
+import { useHasPermission, usePermissionValue, useUserPermissions, useUserRank } from './useSessionSnapshots';
 
 // Regression guard for the rolled-back snapshot-consumer migration.
 //
@@ -110,10 +110,15 @@ describe('use-between + useSyncExternalStore incompatibility', () =>
 });
 
 // ============================================================================
-// useHasRankLevel / useIsRank / useUserRank — reactive flip on snapshot
-// invalidation, tied to the permission_ranks DB table (rankId / rankName /
-// rankBadge / rankPrefix / rankPrefixColor are mirrored on the wire by
-// the extended UserPermissionsComposer in Arcturus ≥ 4.2.10).
+// Permission-driven API — useHasPermission / usePermissionValue /
+// useUserPermissions / useUserRank (display).
+//
+// Wire-fed by Arcturus' UserPermissionsMapComposer (resolved against
+// permission_definitions for the user's rank) + the legacy
+// UserPermissionsComposer (clubLevel/securityLevel/isAmbassador + rank
+// metadata extension). The renderer's SessionDataManager keeps two
+// snapshots: userDataSnapshot (display info) and permissionsSnapshot
+// (gating). Tests fake both sides.
 // ============================================================================
 
 const makeFakeDispatcher = () =>
@@ -139,7 +144,7 @@ const makeFakeDispatcher = () =>
     };
 };
 
-interface FakeSnapshot
+interface FakeUserSnapshot
 {
     securityLevel: number;
     rankId: number;
@@ -149,7 +154,7 @@ interface FakeSnapshot
     rankPrefixColor: string;
 }
 
-const makeSnapshot = (overrides: Partial<FakeSnapshot> = {}): FakeSnapshot => ({
+const makeUserSnapshot = (overrides: Partial<FakeUserSnapshot> = {}): FakeUserSnapshot => ({
     securityLevel: 0,
     rankId: 0,
     rankName: '',
@@ -159,18 +164,21 @@ const makeSnapshot = (overrides: Partial<FakeSnapshot> = {}): FakeSnapshot => ({
     ...overrides
 });
 
-describe('useHasRankLevel + useIsRank + useUserRank', () =>
+describe('useHasPermission + usePermissionValue + useUserPermissions', () =>
 {
-    let snapshot: FakeSnapshot;
+    let userSnapshot: FakeUserSnapshot;
+    let permissionsSnapshot: ReadonlyMap<string, number>;
     let fakeDispatcher: ReturnType<typeof makeFakeDispatcher>;
 
     beforeEach(() =>
     {
-        snapshot = makeSnapshot();
+        userSnapshot = makeUserSnapshot();
+        permissionsSnapshot = new Map();
         fakeDispatcher = makeFakeDispatcher();
 
         vi.mocked(GetSessionDataManager).mockReturnValue({
-            getUserDataSnapshot: () => snapshot
+            getUserDataSnapshot: () => userSnapshot,
+            getPermissionsSnapshot: () => permissionsSnapshot
         } as any);
 
         vi.mocked(GetEventDispatcher).mockReturnValue(fakeDispatcher as any);
@@ -183,9 +191,9 @@ describe('useHasRankLevel + useIsRank + useUserRank', () =>
         vi.mocked(GetEventDispatcher).mockReset();
     });
 
-    it('useUserRank surfaces the full rank metadata from the snapshot', () =>
+    it('useUserRank surfaces rank metadata for presentational use', () =>
     {
-        snapshot = makeSnapshot({
+        userSnapshot = makeUserSnapshot({
             securityLevel: 5,
             rankId: 5,
             rankName: 'Moderator',
@@ -206,36 +214,57 @@ describe('useHasRankLevel + useIsRank + useUserRank', () =>
         });
     });
 
-    it('useHasRankLevel compares >= the threshold (5=Mod, 7=Admin in default seed)', () =>
+    it('useHasPermission returns true for any non-zero value, false for absent/zero', () =>
     {
-        snapshot = makeSnapshot({ securityLevel: 5 });
-        expect(renderHook(() => useHasRankLevel(5)).result.current).toBe(true);
-        expect(renderHook(() => useHasRankLevel(6)).result.current).toBe(false);
-        expect(renderHook(() => useHasRankLevel(7)).result.current).toBe(false);
+        permissionsSnapshot = new Map([
+            [ 'acc_supporttool', 1 ],
+            [ 'acc_anyroomowner', 2 ],
+            [ 'acc_closedice_room', 0 ]
+        ]);
+
+        expect(renderHook(() => useHasPermission('acc_supporttool')).result.current).toBe(true);
+        expect(renderHook(() => useHasPermission('acc_anyroomowner')).result.current).toBe(true);
+        expect(renderHook(() => useHasPermission('acc_closedice_room')).result.current).toBe(false);
+        expect(renderHook(() => useHasPermission('acc_unknown_key')).result.current).toBe(false);
     });
 
-    it('useIsRank matches the exact rank_name from permission_ranks', () =>
+    it('usePermissionValue returns the raw integer (or 0 if absent)', () =>
     {
-        snapshot = makeSnapshot({ rankName: 'Moderator' });
-        expect(renderHook(() => useIsRank('Moderator')).result.current).toBe(true);
-        expect(renderHook(() => useIsRank('Super Mod')).result.current).toBe(false);
-        expect(renderHook(() => useIsRank('Administrator')).result.current).toBe(false);
+        permissionsSnapshot = new Map([
+            [ 'acc_supporttool', 1 ],
+            [ 'acc_anyroomowner', 2 ]
+        ]);
+
+        expect(renderHook(() => usePermissionValue('acc_supporttool')).result.current).toBe(1);
+        expect(renderHook(() => usePermissionValue('acc_anyroomowner')).result.current).toBe(2);
+        expect(renderHook(() => usePermissionValue('acc_missing')).result.current).toBe(0);
     });
 
-    it('re-renders when SESSION_DATA_UPDATED fires after a runtime promote', () =>
+    it('useUserPermissions exposes the full map', () =>
     {
-        snapshot = makeSnapshot({ securityLevel: 1, rankName: 'Member' });
-        const { result } = renderHook(() => useHasRankLevel(5));
+        permissionsSnapshot = new Map([ [ 'acc_supporttool', 1 ], [ 'acc_ambassador', 1 ] ]);
+
+        const { result } = renderHook(() => useUserPermissions());
+
+        expect(result.current.size).toBe(2);
+        expect(result.current.get('acc_supporttool')).toBe(1);
+        expect(result.current.get('acc_ambassador')).toBe(1);
+    });
+
+    it('re-renders when USER_PERMISSIONS_UPDATED fires after a runtime promote', () =>
+    {
+        permissionsSnapshot = new Map();
+        const { result } = renderHook(() => useHasPermission('acc_supporttool'));
         expect(result.current).toBe(false);
 
         act(() =>
         {
             // Renderer invariant: every invalidation produces a NEW
-            // frozen snapshot object. The mock's NitroEventType proxy
-            // resolves any property to `mock:NitroEventType:<PROP>`, so
-            // that's the wire string useSessionSnapshots subscribes against.
-            snapshot = makeSnapshot({ securityLevel: 5, rankName: 'Moderator' });
-            fakeDispatcher.dispatch('mock:NitroEventType:SESSION_DATA_UPDATED');
+            // map reference. The mock's NitroEventType proxy resolves
+            // any property to `mock:NitroEventType:<PROP>`, so that's
+            // the wire string useSessionSnapshots subscribes against.
+            permissionsSnapshot = new Map([ [ 'acc_supporttool', 1 ] ]);
+            fakeDispatcher.dispatch('mock:NitroEventType:USER_PERMISSIONS_UPDATED');
         });
 
         expect(result.current).toBe(true);

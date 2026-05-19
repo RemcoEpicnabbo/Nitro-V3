@@ -59,6 +59,7 @@ const DEFAULT_USER_DATA: Readonly<IUserDataSnapshot> = Object.freeze({
 const EMPTY_IGNORED_LIST: ReadonlyArray<string> = Object.freeze<string[]>([]) as ReadonlyArray<string>;
 const EMPTY_GROUP_BADGES: ReadonlyMap<number, string> = new Map();
 const EMPTY_USER_LIST: ReadonlyArray<IRoomUserData> = Object.freeze<IRoomUserData[]>([]) as ReadonlyArray<IRoomUserData>;
+const EMPTY_PERMISSIONS: ReadonlyMap<string, number> = new Map();
 
 const DEFAULT_VOLUMES: Readonly<ISoundVolumesSnapshot> = Object.freeze({
     system: 0.5,
@@ -129,14 +130,14 @@ export const useIsUserIgnored = (name: string): boolean =>
 };
 
 /**
- * Reactive view of the current user's rank, mirrored from the
- * `permission_ranks` table via the extended `UserPermissionsComposer`
- * wire (Arcturus-Morningstar-Extended ≥ 4.2.10). Use this in UI code
- * that needs to display rank metadata (badge, prefix, prefix color)
- * or to gate behaviour on the actual deployment rank rather than the
- * generic SecurityLevel constants the renderer exposes — those don't
- * line up with the rank names operators actually use ("Moderator",
- * "Super Mod", "Administrator", …).
+ * Reactive view of the current user's rank metadata — name, badge,
+ * prefix, prefix color — mirrored from `permission_ranks` via the
+ * extended `UserPermissionsComposer` wire (Arcturus ≥ 4.2.10). Use
+ * this in PRESENTATIONAL code only (chat prefix coloring, badge in
+ * the avatar overlay, "rank" line in the user profile). DO NOT use
+ * it for gating UI capabilities: prefer the permission-based family
+ * (`useHasPermission(key)`) below, which is dynamic against
+ * `permission_definitions` and survives rank renumbering.
  */
 export interface IUserRank
 {
@@ -163,31 +164,69 @@ export const useUserRank = (): IUserRank =>
 };
 
 /**
- * Reactive predicate: does the current user's rank level satisfy
- * `>= minLevel`? Use this when you want "at least <rank>" semantics
- * and have the rank id from your deployment's `permission_ranks`
- * table (e.g. 5 for Moderator in the default seed). Replaces the
- * older `useHasSecurityLevel` (same wire data, renamed to match the
- * DB table semantics).
+ * Resolved permission map for the current user, mirroring
+ * `permission_definitions` filtered to the user's rank. Backed by
+ * `SessionDataManager.getPermissionsSnapshot()` and invalidated by
+ * `USER_PERMISSIONS_UPDATED` (Arcturus dispatches the underlying
+ * packet at login + after every `setRank`).
+ *
+ * Values: 1 = ALLOWED, 2 = ROOM_OWNER (legacy gate that requires
+ * the user to also be the room owner). Absent key = DISALLOWED.
+ *
+ * Empty Map when the connected emulator doesn't ship the extension
+ * (older deployments) — `useHasPermission` then returns false for
+ * every key, which hides mod-only UI by default (safe).
  */
-export const useHasRankLevel = (minLevel: number): boolean =>
-    useUserDataSnapshot().securityLevel >= minLevel;
+export const useUserPermissions = (): ReadonlyMap<string, number> =>
+    useExternalSnapshot(
+        subscribeTo(NitroEventType.USER_PERMISSIONS_UPDATED),
+        () =>
+        {
+            const manager = GetSessionDataManager();
+
+            if(!manager || typeof manager.getPermissionsSnapshot !== 'function') return EMPTY_PERMISSIONS;
+
+            return manager.getPermissionsSnapshot();
+        }
+    );
 
 /**
- * Reactive exact-match predicate against the rank name from
- * `permission_ranks.rank_name`. Prefer `useHasRankLevel(min)` when
- * the gate is "this rank or higher"; reach for `useIsRank('Foo')`
- * only when an action must be specific to one rank.
+ * Reactive predicate: does the current user have the named
+ * permission (ALLOWED or ROOM_OWNER)? `key` must match a row in
+ * `permission_definitions.permission_key` (e.g. `'acc_supporttool'`,
+ * `'acc_anyroomowner'`, `'acc_catalogfurni'`). Prefer this over any
+ * rank-based gate — it survives rank renumbering and adding new
+ * ranks without touching the React code.
  */
-export const useIsRank = (name: string): boolean => useUserDataSnapshot().rankName === name;
+export const useHasPermission = (key: string): boolean =>
+{
+    const permissions = useUserPermissions();
+
+    return useMemo(() => (permissions.get(key) ?? 0) > 0, [ permissions, key ]);
+};
 
 /**
- * Reactive ambassador flag. Not derived from rank level — it's a
- * separate boolean on the snapshot (the emulator computes it server-
- * side from the `acc_ambassador` permission, which a deployment can
- * grant independently of the rank hierarchy).
+ * Reactive raw permission value (1 = ALLOWED, 2 = ROOM_OWNER, 0 if
+ * absent). Useful for the handful of permissions whose
+ * `permission_definitions.max_value > 1` (e.g.
+ * `acc_closedice_room`) where the precise value matters.
  */
-export const useIsAmbassador = (): boolean => useUserDataSnapshot().isAmbassador;
+export const usePermissionValue = (key: string): number =>
+{
+    const permissions = useUserPermissions();
+
+    return useMemo(() => permissions.get(key) ?? 0, [ permissions, key ]);
+};
+
+/**
+ * Reactive ambassador flag. Alias of
+ * `useHasPermission('acc_ambassador')` — the snapshot also carries
+ * an explicit `isAmbassador` boolean (legacy
+ * `UserPermissionsComposer` field), but routing it through the
+ * permission map keeps a single source of truth for runtime
+ * promote/demote.
+ */
+export const useIsAmbassador = (): boolean => useHasPermission('acc_ambassador');
 
 export const useGroupBadgesSnapshot = (): ReadonlyMap<number, string> =>
     useExternalSnapshot(

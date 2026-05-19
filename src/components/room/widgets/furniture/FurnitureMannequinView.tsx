@@ -1,8 +1,8 @@
 import { GetAvatarRenderManager, GetSessionDataManager, HabboClubLevelEnum, RoomControllerLevel } from '@nitrots/nitro-renderer';
 import { FC, useEffect, useState } from 'react';
-import { GetClubMemberLevel, GetRoomSession, LocalizeText, MannequinUtilities, STAFF_LEVELS } from '../../../../api';
+import { GetClubMemberLevel, GetRoomSession, LocalizeText, MannequinUtilities } from '../../../../api';
 import { Button, Column, LayoutAvatarImageView, LayoutCurrencyIcon, NitroCardContentView, NitroCardHeaderView, NitroCardView, Text } from '../../../../common';
-import { useFurnitureMannequinWidget, useHasRankLevel } from '../../../../hooks';
+import { useFurnitureMannequinWidget, useHasPermission } from '../../../../hooks';
 import { NitroInput } from '../../../../layout';
 
 const MODE_NONE: number = -1;
@@ -17,7 +17,7 @@ export const FurnitureMannequinView: FC<{}> = props =>
     const [ renderedFigure, setRenderedFigure ] = useState<string>(null);
     const [ mode, setMode ] = useState(MODE_NONE);
     const { objectId = -1, figure = null, gender = null, clubLevel = HabboClubLevelEnum.NO_CLUB, name = null, setName = null, saveFigure = null, wearFigure = null, saveName = null, onClose = null } = useFurnitureMannequinWidget();
-    const isModerator = useHasRankLevel(STAFF_LEVELS.MOD);
+    const canManageAnyRoom = useHasPermission('acc_anyroomowner');
 
     useEffect(() =>
     {
@@ -25,7 +25,7 @@ export const FurnitureMannequinView: FC<{}> = props =>
 
         const roomSession = GetRoomSession();
 
-        if(roomSession.isRoomOwner || (roomSession.controllerLevel >= RoomControllerLevel.GUEST) || isModerator)
+        if(roomSession.isRoomOwner || (roomSession.controllerLevel >= RoomControllerLevel.GUEST) || canManageAnyRoom)
         {
             setMode(MODE_CONTROLLER);
 
@@ -47,7 +47,7 @@ export const FurnitureMannequinView: FC<{}> = props =>
         }
 
         setMode(MODE_PEER);
-    }, [ objectId, gender, clubLevel, isModerator ]);
+    }, [ objectId, gender, clubLevel, canManageAnyRoom ]);
 
     useEffect(() =>
     {

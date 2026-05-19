@@ -1,8 +1,8 @@
 import { FurniturePickupAllComposer } from '@nitrots/nitro-renderer';
 import { FC, useEffect, useEffectEvent, useMemo, useState } from 'react';
-import { LocalizeText, RoomObjectItem, SendMessageComposer, STAFF_LEVELS, chooserSelectionVisualizer } from '../../../../api';
+import { LocalizeText, RoomObjectItem, SendMessageComposer, chooserSelectionVisualizer } from '../../../../api';
 import { Button, Flex, InfiniteScroll, NitroCardContentView, NitroCardHeaderView, NitroCardView, Text } from '../../../../common';
-import { useHasRankLevel } from '../../../../hooks';
+import { useHasPermission } from '../../../../hooks';
 import { NitroInput, classNames } from '../../../../layout';
 
 const LIMIT_FURNI_PICKALL = 100;
@@ -24,7 +24,7 @@ export const ChooserWidgetView: FC<ChooserWidgetViewProps> = props =>
     const [ searchValue, setSearchValue ] = useState('');
     const [ checkAll, setCheckAll ] = useState(false);
     const [ checkedIds, setCheckedIds ] = useState<number[]>([]);
-    const canSeeId = useHasRankLevel(STAFF_LEVELS.MOD);
+    const canSeeId = useHasPermission('acc_supporttool');
 
     const ownerNames = useMemo(() =>
     {
