@@ -1,6 +1,6 @@
 import { AddLinkEventTracker, CreateLinkEvent, ILinkEventTracker, RemoveLinkEventTracker, RoomEngineEvent, RoomId, RoomObjectCategory, RoomObjectType } from '@nitrots/nitro-renderer';
 import { FC, useEffect, useMemo, useRef, useState } from 'react';
-import { FaDoorClosed, FaDoorOpen, FaTimes, FaUserSlash } from 'react-icons/fa';
+import { FaTimes, FaUserSlash } from 'react-icons/fa';
 import { GetRoomSession, ISelectedUser, LocalizeText } from '../../api';
 import { Button, DraggableWindowPosition, NitroCardContentView, NitroCardHeaderView, NitroCardView } from '../../common';
 import { useModTools, useNitroEvent, useObjectSelectedEvent, useRoomUserListSnapshot } from '../../hooks';
@@ -146,20 +146,6 @@ export const ModToolsView: FC<{}> = props =>
                 <NitroCardView className="nitro-mod-tools min-w-[240px] max-w-[260px]" theme="primary-slim" uniqueKey="mod-tools" windowPosition={ DraggableWindowPosition.TOP_LEFT } >
                     <NitroCardHeaderView headerText={ LocalizeText('modtools.window.title') } onCloseClick={ event => setIsVisible(false) } />
                     <NitroCardContentView className="text-black" gap={ 2 }>
-                        {/* Context strip: which room are we observing? */}
-                        <div className={ `flex items-center gap-2 rounded p-1.5 border ${ isInRoom ? 'bg-gradient-to-r from-emerald-50 to-transparent border-emerald-100' : 'bg-zinc-50 border-zinc-200' }` }
-                            title={ isInRoom ? LocalizeText('modtools.window.context.room', [ 'roomId' ], [ currentRoomId.toString() ]) : noRoomHint }>
-                            { isInRoom
-                                ? <FaDoorOpen className="text-emerald-600 shrink-0" size={ 12 } />
-                                : <FaDoorClosed className="text-zinc-400 shrink-0" size={ 12 } /> }
-                            <div className="flex flex-col grow min-w-0 leading-tight">
-                                <div className="text-[.6rem] uppercase tracking-wide opacity-60 font-semibold">{ LocalizeText('modtools.window.section.context') }</div>
-                                { isInRoom
-                                    ? <div className="text-xs font-medium truncate">{ LocalizeText('modtools.window.context.room', [ 'roomId' ], [ currentRoomId.toString() ]) }</div>
-                                    : <div className="text-xs italic opacity-60 truncate">{ noRoomHint }</div> }
-                            </div>
-                        </div>
-
                         {/* Room tools */}
                         <div className="flex flex-col gap-1.5">
                             <div className="text-[.6rem] uppercase tracking-wide opacity-60 font-semibold pl-1">{ LocalizeText('modtools.window.section.room') }</div>
