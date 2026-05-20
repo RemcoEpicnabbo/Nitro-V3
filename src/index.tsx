@@ -18,6 +18,7 @@ const queryClient = new QueryClient({
 import './css/index.css';
 
 import './css/backgrounds/BackgroundsView.css';
+import './css/badges/BadgeLeaderboardView.css';
 
 import './css/chat/Chats.css';
 
