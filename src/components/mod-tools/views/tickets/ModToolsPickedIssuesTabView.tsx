@@ -1,7 +1,7 @@
 import { IssueMessageData } from '@nitrots/nitro-renderer';
 import { FC } from 'react';
 import { FaClock, FaInbox, FaUser, FaUserShield } from 'react-icons/fa';
-import { GetIssueCategoryName } from '../../../../api';
+import { GetIssueCategoryName, LocalizeText } from '../../../../api';
 
 interface ModToolsPickedIssuesTabViewProps
 {
@@ -16,15 +16,15 @@ export const ModToolsPickedIssuesTabView: FC<ModToolsPickedIssuesTabViewProps> =
     return (
         <div className="flex flex-col gap-1 overflow-hidden">
             <div className="grid grid-cols-[100px_1fr_100px_120px] gap-2 text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-zinc-200 pb-1 px-1">
-                <div>Type</div>
-                <div className="flex items-center gap-1"><FaUser size={ 10 } /> Reported</div>
-                <div className="flex items-center gap-1"><FaClock size={ 10 } /> Opened</div>
-                <div className="flex items-center gap-1"><FaUserShield size={ 10 } /> Picker</div>
+                <div>{ LocalizeText('modtools.tickets.column.type') }</div>
+                <div className="flex items-center gap-1"><FaUser size={ 10 } /> { LocalizeText('modtools.tickets.column.reported') }</div>
+                <div className="flex items-center gap-1"><FaClock size={ 10 } /> { LocalizeText('modtools.tickets.column.opened') }</div>
+                <div className="flex items-center gap-1"><FaUserShield size={ 10 } /> { LocalizeText('modtools.tickets.column.picker') }</div>
             </div>
             { isEmpty
                 ? <div className="flex flex-col items-center justify-center gap-1 py-8 opacity-50 text-sm">
                     <FaInbox size={ 22 } />
-                    <span>No picked issues</span>
+                    <span>{ LocalizeText('modtools.tickets.empty.picked') }</span>
                 </div>
                 : <div className="flex flex-col overflow-auto">
                     { pickedIssues.map(issue => (

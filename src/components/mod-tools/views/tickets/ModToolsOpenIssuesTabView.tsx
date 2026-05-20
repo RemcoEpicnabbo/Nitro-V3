@@ -1,7 +1,7 @@
 import { IssueMessageData, PickIssuesMessageComposer } from '@nitrots/nitro-renderer';
 import { FC, useRef } from 'react';
 import { FaClock, FaHandPointer, FaInbox, FaUser } from 'react-icons/fa';
-import { GetIssueCategoryName, SendMessageComposer } from '../../../../api';
+import { GetIssueCategoryName, LocalizeText, SendMessageComposer } from '../../../../api';
 
 interface ModToolsOpenIssuesTabViewProps
 {
@@ -28,15 +28,15 @@ export const ModToolsOpenIssuesTabView: FC<ModToolsOpenIssuesTabViewProps> = pro
     return (
         <div className="flex flex-col gap-1 overflow-hidden">
             <div className="grid grid-cols-[100px_1fr_100px_100px] gap-2 text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-zinc-200 pb-1 px-1">
-                <div>Type</div>
-                <div className="flex items-center gap-1"><FaUser size={ 10 } /> Reported</div>
-                <div className="flex items-center gap-1"><FaClock size={ 10 } /> Opened</div>
+                <div>{ LocalizeText('modtools.tickets.column.type') }</div>
+                <div className="flex items-center gap-1"><FaUser size={ 10 } /> { LocalizeText('modtools.tickets.column.reported') }</div>
+                <div className="flex items-center gap-1"><FaClock size={ 10 } /> { LocalizeText('modtools.tickets.column.opened') }</div>
                 <div></div>
             </div>
             { isEmpty
                 ? <div className="flex flex-col items-center justify-center gap-1 py-8 opacity-50 text-sm">
                     <FaInbox size={ 22 } />
-                    <span>No open issues</span>
+                    <span>{ LocalizeText('modtools.tickets.empty.open') }</span>
                 </div>
                 : <div className="flex flex-col overflow-auto">
                     { openIssues.map(issue => (
@@ -51,7 +51,7 @@ export const ModToolsOpenIssuesTabView: FC<ModToolsOpenIssuesTabViewProps> = pro
                             <button
                                 className="inline-flex items-center justify-center gap-1 px-2 py-1 rounded text-xs font-medium bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
                                 onClick={ () => pickIssue(issue.issueId) }>
-                                <FaHandPointer size={ 10 } /> Pick
+                                <FaHandPointer size={ 10 } /> { LocalizeText('modtools.tickets.action.pick') }
                             </button>
                         </div>
                     )) }

@@ -143,15 +143,15 @@ export const ModToolsView: FC<{}> = props =>
         <>
             { isVisible &&
                 <NitroCardView className="nitro-mod-tools min-w-[220px]" theme="primary-slim" uniqueKey="mod-tools" windowPosition={ DraggableWindowPosition.TOP_LEFT } >
-                    <NitroCardHeaderView headerText={ 'Mod Tools' } onCloseClick={ event => setIsVisible(false) } />
+                    <NitroCardHeaderView headerText={ LocalizeText('modtools.window.title') } onCloseClick={ event => setIsVisible(false) } />
                     <NitroCardContentView className="text-black" gap={ 2 }>
                         <Button active={ isRoomInfoOpen } disabled={ (currentRoomId <= 0) } gap={ 2 } justifyContent="start" title={ (currentRoomId <= 0) ? noRoomHint : undefined } onClick={ event => CreateLinkEvent(`mod-tools/toggle-room-info/${ currentRoomId }`) }>
                             <div className="nitro-icon icon-small-room shrink-0" />
-                            <span className="grow text-start">Room Tool</span>
+                            <span className="grow text-start">{ LocalizeText('modtools.window.tools.room') }</span>
                         </Button>
                         <Button active={ isRoomChatlogOpen } disabled={ (currentRoomId <= 0) } gap={ 2 } innerRef={ elementRef } justifyContent="start" title={ (currentRoomId <= 0) ? noRoomHint : undefined } onClick={ event => CreateLinkEvent(`mod-tools/toggle-room-chatlog/${ currentRoomId }`) }>
                             <div className="nitro-icon icon-chat-history shrink-0" />
-                            <span className="grow text-start">Chatlog Tool</span>
+                            <span className="grow text-start">{ LocalizeText('modtools.window.tools.chatlog') }</span>
                         </Button>
                         <Button active={ !!isUserInfoOpen } disabled={ !selectedUser } gap={ 2 } justifyContent="start" onClick={ () => selectedUser && CreateLinkEvent(`mod-tools/toggle-user-info/${ selectedUser.userId }`) }>
                             <div className="nitro-icon icon-user shrink-0" />
@@ -160,9 +160,9 @@ export const ModToolsView: FC<{}> = props =>
                                     <>
                                         <span className="truncate grow text-start">{ selectedUser.username }</span>
                                         <span
-                                            aria-label={ isSelectedUserPresent ? 'In room' : 'Left room' }
+                                            aria-label={ isSelectedUserPresent ? LocalizeText('modtools.userinfo.presence.in_room') : LocalizeText('modtools.window.user.left_room') }
                                             className={ `inline-block w-2 h-2 rounded-full shrink-0 ${ isSelectedUserPresent ? 'bg-emerald-500' : 'bg-zinc-400' }` }
-                                            title={ isSelectedUserPresent ? 'Still in this room' : 'No longer in this room' }
+                                            title={ isSelectedUserPresent ? LocalizeText('modtools.window.user.in_room') : LocalizeText('modtools.window.user.left_room') }
                                         />
                                         <span
                                             className="inline-flex items-center justify-center w-4 h-4 rounded text-xs text-zinc-500 hover:text-rose-600 hover:bg-rose-100 shrink-0"
@@ -173,21 +173,21 @@ export const ModToolsView: FC<{}> = props =>
                                             } }
                                             role="button"
                                             tabIndex={ 0 }
-                                            title="Clear selection">
+                                            title={ LocalizeText('modtools.window.user.clear') }>
                                             <FaTimes />
                                         </span>
                                     </>
                                 )
-                                : <span className="opacity-50 italic grow text-start">Select a user</span>
+                                : <span className="opacity-50 italic grow text-start">{ LocalizeText('modtools.window.select.user') }</span>
                             }
                         </Button>
                         <Button active={ isTicketsVisible } gap={ 2 } justifyContent="start" onClick={ () => setIsTicketsVisible(prevValue => !prevValue) }>
                             <div className="nitro-icon icon-tickets shrink-0" />
-                            <span className="grow text-start">Report Tool</span>
+                            <span className="grow text-start">{ LocalizeText('modtools.window.tools.report') }</span>
                             { (openTicketsCount > 0) &&
                                 <span
                                     className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full bg-rose-500 text-white text-xs font-semibold shrink-0"
-                                    title={ `${ openTicketsCount } open ticket${ openTicketsCount === 1 ? '' : 's' }` }>
+                                    title={ LocalizeText(openTicketsCount === 1 ? 'modtools.window.tickets.open' : 'modtools.window.tickets.open.many', [ 'count' ], [ openTicketsCount.toString() ]) }>
                                     { openTicketsCount > 99 ? '99+' : openTicketsCount }
                                 </span> }
                         </Button>

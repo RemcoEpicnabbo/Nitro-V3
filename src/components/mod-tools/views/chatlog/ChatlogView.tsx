@@ -1,7 +1,7 @@
 import { ChatRecordData, CreateLinkEvent } from '@nitrots/nitro-renderer';
 import { FC, useMemo } from 'react';
 import { FaCommentDots, FaDoorOpen, FaSignInAlt, FaTools } from 'react-icons/fa';
-import { TryVisitRoom } from '../../../../api';
+import { LocalizeText, TryVisitRoom } from '../../../../api';
 import { Column, InfiniteScroll } from '../../../../common';
 import { useModTools } from '../../../../hooks';
 import { ChatlogRecord } from './ChatlogRecord';
@@ -57,12 +57,12 @@ export const ChatlogView: FC<ChatlogViewProps> = props =>
                 <button
                     className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-white border border-sky-200 text-sky-700 hover:bg-sky-100 transition-colors"
                     onClick={ () => TryVisitRoom(props.roomId) }>
-                    <FaSignInAlt size={ 10 } /> Visit
+                    <FaSignInAlt size={ 10 } /> { LocalizeText('modtools.chatlog.visit') }
                 </button>
                 <button
                     className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-white border border-sky-200 text-sky-700 hover:bg-sky-100 transition-colors"
                     onClick={ () => openRoomInfo(props.roomId) }>
-                    <FaTools size={ 10 } /> Tools
+                    <FaTools size={ 10 } /> { LocalizeText('modtools.chatlog.tools') }
                 </button>
             </div>
         </div>
@@ -74,14 +74,14 @@ export const ChatlogView: FC<ChatlogViewProps> = props =>
         <Column fit gap={ 0 } overflow="hidden">
             {/* Column headers */}
             <div className="grid grid-cols-[60px_120px_1fr] gap-2 text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-zinc-200 pb-1 px-1">
-                <div>Time</div>
-                <div>User</div>
-                <div>Message</div>
+                <div>{ LocalizeText('modtools.chatlog.column.time') }</div>
+                <div>{ LocalizeText('modtools.chatlog.column.user') }</div>
+                <div>{ LocalizeText('modtools.chatlog.column.message') }</div>
             </div>
             { isEmpty
                 ? <div className="flex flex-col items-center justify-center gap-1 py-6 opacity-50 text-sm">
                     <FaCommentDots size={ 22 } />
-                    <span>No messages</span>
+                    <span>{ LocalizeText('modtools.chatlog.empty') }</span>
                 </div>
                 : <InfiniteScroll rowRender={ (row: ChatlogRecord) =>
                 {

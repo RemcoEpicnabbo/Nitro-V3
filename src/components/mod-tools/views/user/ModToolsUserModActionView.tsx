@@ -77,7 +77,7 @@ export const ModToolsUserModActionView: FC<ModToolsUserModActionViewProps> = pro
 
         const category = topics[selectedTopic];
 
-        if(selectedTopic === -1) return sendAlert('You must select a CFH topic');
+        if(selectedTopic === -1) return sendAlert(LocalizeText('modtools.user.modaction.error.no.topic'));
 
         const messageOrDefault = (message.trim().length === 0) ? LocalizeText(`help.cfh.topic.${ category.id }`) : message;
 
@@ -94,10 +94,10 @@ export const ModToolsUserModActionView: FC<ModToolsUserModActionViewProps> = pro
         const category = topics[selectedTopic];
         const sanction = MOD_ACTION_DEFINITIONS[selectedAction];
 
-        if((selectedTopic === -1) || (selectedAction === -1)) errorMessage = 'You must select a CFH topic and Sanction';
-        else if(!settings || !settings.cfhPermission) errorMessage = 'You do not have permission to do this';
-        else if(!category) errorMessage = 'You must select a CFH topic';
-        else if(!sanction) errorMessage = 'You must select a sanction';
+        if((selectedTopic === -1) || (selectedAction === -1)) errorMessage = LocalizeText('modtools.user.modaction.error.no.action');
+        else if(!settings || !settings.cfhPermission) errorMessage = LocalizeText('modtools.user.modaction.error.no.permission');
+        else if(!category) errorMessage = LocalizeText('modtools.user.modaction.error.no.topic');
+        else if(!sanction) errorMessage = LocalizeText('modtools.user.modaction.error.no.action');
 
         if(errorMessage) return sendAlert(errorMessage);
 
@@ -106,7 +106,7 @@ export const ModToolsUserModActionView: FC<ModToolsUserModActionViewProps> = pro
         switch(sanction.actionType)
         {
             case ModActionDefinition.ALERT: {
-                if(!settings.alertPermission) return sendAlert('You have insufficient permissions');
+                if(!settings.alertPermission) return sendAlert(LocalizeText('modtools.user.modaction.error.no.permission.alert'));
                 SendMessageComposer(new ModAlertMessageComposer(user.userId, messageOrDefault, category.id));
                 break;
             }
@@ -114,12 +114,12 @@ export const ModToolsUserModActionView: FC<ModToolsUserModActionViewProps> = pro
                 SendMessageComposer(new ModMuteMessageComposer(user.userId, messageOrDefault, category.id));
                 break;
             case ModActionDefinition.BAN: {
-                if(!settings.banPermission) return sendAlert('You have insufficient permissions');
+                if(!settings.banPermission) return sendAlert(LocalizeText('modtools.user.modaction.error.no.permission.alert'));
                 SendMessageComposer(new ModBanMessageComposer(user.userId, messageOrDefault, category.id, selectedAction, (sanction.actionId === 106)));
                 break;
             }
             case ModActionDefinition.KICK: {
-                if(!settings.kickPermission) return sendAlert('You have insufficient permissions');
+                if(!settings.kickPermission) return sendAlert(LocalizeText('modtools.user.modaction.error.no.permission.alert'));
                 SendMessageComposer(new ModKickMessageComposer(user.userId, messageOrDefault, category.id));
                 break;
             }
@@ -129,7 +129,7 @@ export const ModToolsUserModActionView: FC<ModToolsUserModActionViewProps> = pro
                 break;
             }
             case ModActionDefinition.MESSAGE: {
-                if(message.trim().length === 0) return sendAlert('Please write a message to user');
+                if(message.trim().length === 0) return sendAlert(LocalizeText('modtools.user.modaction.error.no.message'));
                 SendMessageComposer(new ModMessageMessageComposer(user.userId, message, category.id));
                 break;
             }
@@ -149,41 +149,43 @@ export const ModToolsUserModActionView: FC<ModToolsUserModActionViewProps> = pro
 
     return (
         <NitroCardView className="nitro-mod-tools-user-action min-w-[420px] max-w-[460px]" theme="primary-slim" windowPosition={ DraggableWindowPosition.TOP_LEFT }>
-            <NitroCardHeaderView headerText={ `Mod Action: ${ user.username }` } onCloseClick={ () => onCloseClick() } />
+            <NitroCardHeaderView headerText={ LocalizeText('modtools.user.modaction.title', [ 'username' ], [ user.username ]) } onCloseClick={ () => onCloseClick() } />
             <NitroCardContentView className="text-black" gap={ 2 }>
                 {/* Target header */}
                 <div className="flex items-center gap-2 bg-gradient-to-r from-rose-50 to-transparent rounded p-2 border border-rose-100">
                     <FaGavel className="text-rose-600 shrink-0" size={ 16 } />
                     <div className="flex flex-col grow min-w-0">
-                        <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">Sanctioning</div>
+                        <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">{ LocalizeText('modtools.user.modaction.sanctioning') }</div>
                         <div className="font-semibold leading-tight truncate">{ user.username }</div>
                     </div>
                 </div>
 
                 {/* CFH topic */}
                 <div className="flex flex-col gap-1">
-                    <label className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">1. CFH Topic</label>
+                    <label className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">{ LocalizeText('modtools.user.modaction.step.topic') }</label>
                     <select className="form-select form-select-sm" value={ selectedTopic } onChange={ event => setSelectedTopic(parseInt(event.target.value)) }>
-                        <option disabled value={ -1 }>Select a topic…</option>
+                        <option disabled value={ -1 }>{ LocalizeText('modtools.user.modaction.step.topic.placeholder') }</option>
                         { topics.map((topic, index) => <option key={ index } value={ index }>{ LocalizeText('help.cfh.topic.' + topic.id) }</option>) }
                     </select>
                 </div>
 
                 {/* Sanction type */}
                 <div className="flex flex-col gap-1">
-                    <label className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">2. Sanction</label>
+                    <label className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">{ LocalizeText('modtools.user.modaction.step.sanction') }</label>
                     <select className="form-select form-select-sm" value={ selectedAction } onChange={ event => setSelectedAction(parseInt(event.target.value)) }>
-                        <option disabled value={ -1 }>Select a sanction…</option>
+                        <option disabled value={ -1 }>{ LocalizeText('modtools.user.modaction.step.sanction.placeholder') }</option>
                         { MOD_ACTION_DEFINITIONS.map((action, index) => <option key={ index } value={ index }>{ action.name }</option>) }
                     </select>
                 </div>
 
                 {/* Message */}
                 <div className="flex flex-col gap-1">
-                    <label className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">3. Custom message <span className="opacity-50 normal-case font-normal">(optional — overrides default)</span></label>
+                    <label className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">
+                        { LocalizeText('modtools.user.modaction.step.message') } <span className="opacity-50 normal-case font-normal">{ LocalizeText('modtools.user.modaction.step.message.optional') }</span>
+                    </label>
                     <textarea
                         className="min-h-[60px] px-2 py-1.5 rounded text-sm border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-rose-300"
-                        placeholder="Leave empty to use the default topic message"
+                        placeholder={ LocalizeText('modtools.user.modaction.message.placeholder') }
                         value={ message }
                         onChange={ event => setMessage(event.target.value) }
                     />
@@ -192,7 +194,7 @@ export const ModToolsUserModActionView: FC<ModToolsUserModActionViewProps> = pro
                 {/* Preview */}
                 { (selectedSanction || selectedTopicName) &&
                     <div className="flex flex-col gap-1 bg-zinc-50 border border-zinc-200 rounded p-2">
-                        <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">Preview</div>
+                        <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">{ LocalizeText('modtools.user.modaction.preview') }</div>
                         <div className="flex items-center gap-2 flex-wrap">
                             { selectedTopicName &&
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border bg-white border-zinc-200">
@@ -208,10 +210,10 @@ export const ModToolsUserModActionView: FC<ModToolsUserModActionViewProps> = pro
                 {/* Action buttons */}
                 <div className="flex gap-1.5 pt-1 border-t border-zinc-200">
                     <Button className="grow" disabled={ !canSubmit } gap={ 1 } variant="primary" onClick={ sendDefaultSanction }>
-                        <FaBolt size={ 12 } /> Default Sanction
+                        <FaBolt size={ 12 } /> { LocalizeText('modtools.user.modaction.button.default') }
                     </Button>
                     <Button className="grow" disabled={ !canSubmit || selectedAction === -1 } gap={ 1 } variant="success" onClick={ sendSanction }>
-                        <FaGavel size={ 12 } /> Apply Sanction
+                        <FaGavel size={ 12 } /> { LocalizeText('modtools.user.modaction.button.apply') }
                     </Button>
                 </div>
             </NitroCardContentView>

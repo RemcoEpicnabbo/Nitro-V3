@@ -1,7 +1,7 @@
 import { GetRoomVisitsMessageComposer, RoomVisitsData, RoomVisitsEvent } from '@nitrots/nitro-renderer';
 import { FC, useEffect, useState } from 'react';
 import { FaClock, FaDoorOpen, FaSignInAlt } from 'react-icons/fa';
-import { SendMessageComposer, TryVisitRoom } from '../../../../api';
+import { LocalizeText, SendMessageComposer, TryVisitRoom } from '../../../../api';
 import { DraggableWindowPosition, InfiniteScroll, NitroCardContentView, NitroCardHeaderView, NitroCardView } from '../../../../common';
 import { useMessageEvent } from '../../../../hooks';
 
@@ -35,31 +35,35 @@ export const ModToolsUserRoomVisitsView: FC<ModToolsUserRoomVisitsViewProps> = p
     const rows = roomVisitData?.rooms ?? [];
     const isEmpty = rows.length === 0;
 
+    const countLabel = rows.length === 1
+        ? LocalizeText('modtools.user.visits.entries.one', [ 'count' ], [ rows.length.toString() ])
+        : LocalizeText('modtools.user.visits.entries.many', [ 'count' ], [ rows.length.toString() ]);
+
     return (
         <NitroCardView className="nitro-mod-tools-user-visits min-w-[400px] max-w-[460px] max-h-[460px]" theme="primary-slim" windowPosition={ DraggableWindowPosition.TOP_LEFT }>
-            <NitroCardHeaderView headerText={ 'User Visits' } onCloseClick={ onCloseClick } />
+            <NitroCardHeaderView headerText={ LocalizeText('modtools.user.visits.title') } onCloseClick={ onCloseClick } />
             <NitroCardContentView className="text-black" gap={ 1 }>
                 {/* Header strip */}
                 <div className="flex items-center gap-2 bg-gradient-to-r from-sky-50 to-transparent rounded p-2 border border-sky-100">
                     <FaDoorOpen className="text-sky-600 shrink-0" size={ 14 } />
-                    <div className="text-sm font-semibold leading-tight grow">Recent visited rooms</div>
+                    <div className="text-sm font-semibold leading-tight grow">{ LocalizeText('modtools.user.visits.recent') }</div>
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-white border-zinc-200">
-                        { rows.length } { rows.length === 1 ? 'entry' : 'entries' }
+                        { countLabel }
                     </span>
                 </div>
 
                 {/* Table head */}
                 <div className="grid grid-cols-[60px_1fr_80px] gap-2 text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-zinc-200 pb-1 px-1">
-                    <div className="flex items-center gap-1"><FaClock size={ 10 } /> Time</div>
-                    <div>Room name</div>
-                    <div className="text-right">Action</div>
+                    <div className="flex items-center gap-1"><FaClock size={ 10 } /> { LocalizeText('modtools.user.visits.time') }</div>
+                    <div>{ LocalizeText('modtools.user.visits.room') }</div>
+                    <div className="text-right">{ LocalizeText('modtools.user.visits.action') }</div>
                 </div>
 
                 {/* Rows */}
                 { isEmpty
                     ? <div className="flex flex-col items-center justify-center gap-1 py-6 opacity-50 text-sm">
                         <FaDoorOpen size={ 22 } />
-                        <span>No recent visits</span>
+                        <span>{ LocalizeText('modtools.user.visits.empty') }</span>
                     </div>
                     : <div className="flex flex-col grow min-h-0 overflow-hidden">
                         <InfiniteScroll rowRender={ row => (
@@ -71,8 +75,8 @@ export const ModToolsUserRoomVisitsView: FC<ModToolsUserRoomVisitsViewProps> = p
                                 <button
                                     className="inline-flex items-center justify-end gap-1 text-sky-700 hover:text-sky-900 hover:underline text-xs"
                                     onClick={ () => TryVisitRoom(row.roomId) }
-                                    title="Visit room">
-                                    <FaSignInAlt size={ 10 } /> Visit
+                                    title={ LocalizeText('modtools.user.visits.visit.title') }>
+                                    <FaSignInAlt size={ 10 } /> { LocalizeText('modtools.user.visits.visit') }
                                 </button>
                             </div>
                         ) } rows={ rows } />

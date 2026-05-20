@@ -43,13 +43,13 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = props =>
     return (
         <>
             <NitroCardView className="nitro-mod-tools-handle-issue min-w-[440px] max-w-[500px]" theme="primary-slim" windowPosition={ DraggableWindowPosition.TOP_LEFT }>
-                <NitroCardHeaderView headerText={ `Resolving issue #${ issueId }` } onCloseClick={ () => onIssueInfoClosed(issueId) } />
+                <NitroCardHeaderView headerText={ LocalizeText('modtools.tickets.issue.title', [ 'issueId' ], [ issueId.toString() ]) } onCloseClick={ () => onIssueInfoClosed(issueId) } />
                 <NitroCardContentView className="text-black" gap={ 2 }>
                     {/* Issue header */}
                     <div className="flex items-center gap-2 bg-gradient-to-r from-amber-50 to-transparent rounded p-2 border border-amber-100">
                         <FaCommentDots className="text-amber-600 shrink-0" size={ 16 } />
                         <div className="flex flex-col grow min-w-0">
-                            <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">Issue #{ issueId }</div>
+                            <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">{ LocalizeText('modtools.tickets.issue.label', [ 'issueId' ], [ issueId.toString() ]) }</div>
                             <div className="font-semibold leading-tight truncate">{ GetIssueCategoryName(ticket.categoryId) }</div>
                         </div>
                         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-white border-amber-200 text-amber-800">
@@ -59,19 +59,19 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = props =>
 
                     {/* Details */}
                     <div className="flex flex-col gap-1">
-                        <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-zinc-200 pb-1 mb-0.5">Details</div>
+                        <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-zinc-200 pb-1 mb-0.5">{ LocalizeText('modtools.tickets.issue.details') }</div>
                         <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[.8rem] m-0">
-                            <Field label="Source">{ GetIssueCategoryName(ticket.categoryId) }</Field>
-                            <Field label="Category">{ LocalizeText('help.cfh.topic.' + ticket.reportedCategoryId) }</Field>
-                            <Field label="Description">{ ticket.message }</Field>
-                            <Field label="Caller">
+                            <Field label={ LocalizeText('modtools.tickets.issue.field.source') }>{ GetIssueCategoryName(ticket.categoryId) }</Field>
+                            <Field label={ LocalizeText('modtools.tickets.issue.field.category') }>{ LocalizeText('help.cfh.topic.' + ticket.reportedCategoryId) }</Field>
+                            <Field label={ LocalizeText('modtools.tickets.issue.field.description') }>{ ticket.message }</Field>
+                            <Field label={ LocalizeText('modtools.tickets.issue.field.caller') }>
                                 <button
                                     className="font-semibold text-sky-700 hover:text-sky-900 hover:underline inline-flex items-center gap-1"
                                     onClick={ () => openUserInfo(ticket.reporterUserId) }>
                                     { ticket.reporterUserName } <FaExternalLinkAlt size={ 8 } className="opacity-60" />
                                 </button>
                             </Field>
-                            <Field label="Reported">
+                            <Field label={ LocalizeText('modtools.tickets.issue.field.reported') }>
                                 <button
                                     className="font-semibold text-sky-700 hover:text-sky-900 hover:underline inline-flex items-center gap-1"
                                     onClick={ () => openUserInfo(ticket.reportedUserId) }>
@@ -83,25 +83,25 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = props =>
 
                     {/* Tools */}
                     <Button gap={ 1 } variant="secondary" onClick={ () => setCfhChatlogOpen(prev => !prev) }>
-                        <FaCommentDots size={ 12 } /> { cfhChatlogOpen ? 'Close chatlog' : 'View chatlog' }
+                        <FaCommentDots size={ 12 } /> { cfhChatlogOpen ? LocalizeText('modtools.tickets.issue.chatlog.close') : LocalizeText('modtools.tickets.issue.chatlog.view') }
                     </Button>
 
                     {/* Resolution buttons */}
                     <div className="flex flex-col gap-1.5 pt-1 border-t border-zinc-200">
-                        <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">Resolve as</div>
+                        <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">{ LocalizeText('modtools.tickets.issue.resolve.heading') }</div>
                         <div className="grid grid-cols-3 gap-1.5">
                             <Button gap={ 1 } variant="success" onClick={ () => closeIssue(CloseIssuesMessageComposer.RESOLUTION_RESOLVED) }>
-                                <FaCheck size={ 11 } /> Resolved
+                                <FaCheck size={ 11 } /> { LocalizeText('modtools.tickets.issue.resolve.resolved') }
                             </Button>
                             <Button gap={ 1 } variant="dark" onClick={ () => closeIssue(CloseIssuesMessageComposer.RESOLUTION_USELESS) }>
-                                <FaTrashAlt size={ 11 } /> Useless
+                                <FaTrashAlt size={ 11 } /> { LocalizeText('modtools.tickets.issue.resolve.useless') }
                             </Button>
                             <Button gap={ 1 } variant="danger" onClick={ () => closeIssue(CloseIssuesMessageComposer.RESOLUTION_ABUSIVE) }>
-                                <FaBan size={ 11 } /> Abusive
+                                <FaBan size={ 11 } /> { LocalizeText('modtools.tickets.issue.resolve.abusive') }
                             </Button>
                         </div>
                         <Button gap={ 1 } variant="secondary" onClick={ releaseIssue }>
-                            <FaSignOutAlt size={ 12 } /> Release back to queue
+                            <FaSignOutAlt size={ 12 } /> { LocalizeText('modtools.tickets.issue.release') }
                         </Button>
                     </div>
                 </NitroCardContentView>

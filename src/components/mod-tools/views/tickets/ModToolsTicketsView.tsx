@@ -1,6 +1,7 @@
 import { GetSessionDataManager, IssueMessageData } from '@nitrots/nitro-renderer';
 import { FC, useMemo, useState } from 'react';
 import { FaCheckSquare, FaListUl, FaUserCheck } from 'react-icons/fa';
+import { LocalizeText } from '../../../../api';
 import { NitroCardContentView, NitroCardHeaderView, NitroCardTabsItemView, NitroCardTabsView, NitroCardView } from '../../../../common';
 import { useModTools } from '../../../../hooks';
 import { ModToolsIssueInfoView } from './ModToolsIssueInfoView';
@@ -96,16 +97,16 @@ export const ModToolsTicketsView: FC<ModToolsTicketsViewProps> = props =>
     return (
         <>
             <NitroCardView className="nitro-mod-tools-tickets min-w-[520px] max-w-[640px] max-h-[520px]">
-                <NitroCardHeaderView headerText={ 'Tickets' } onCloseClick={ onCloseClick } />
+                <NitroCardHeaderView headerText={ LocalizeText('modtools.tickets.title') } onCloseClick={ onCloseClick } />
                 <NitroCardTabsView>
                     <NitroCardTabsItemView isActive={ currentTab === 0 } onClick={ () => setCurrentTab(0) }>
-                        <TabLabel label="Open" count={ openIssues.length } icon={ <FaListUl size={ 10 } /> } tone="amber" />
+                        <TabLabel label={ LocalizeText('modtools.tickets.tab.open') } count={ openIssues.length } icon={ <FaListUl size={ 10 } /> } tone="amber" />
                     </NitroCardTabsItemView>
                     <NitroCardTabsItemView isActive={ currentTab === 1 } onClick={ () => setCurrentTab(1) }>
-                        <TabLabel label="Mine" count={ myIssues.length } icon={ <FaUserCheck size={ 10 } /> } tone="sky" />
+                        <TabLabel label={ LocalizeText('modtools.tickets.tab.mine') } count={ myIssues.length } icon={ <FaUserCheck size={ 10 } /> } tone="sky" />
                     </NitroCardTabsItemView>
                     <NitroCardTabsItemView isActive={ currentTab === 2 } onClick={ () => setCurrentTab(2) }>
-                        <TabLabel label="All picked" count={ pickedIssues.length } icon={ <FaCheckSquare size={ 10 } /> } tone="zinc" />
+                        <TabLabel label={ LocalizeText('modtools.tickets.tab.picked') } count={ pickedIssues.length } icon={ <FaCheckSquare size={ 10 } /> } tone="zinc" />
                     </NitroCardTabsItemView>
                 </NitroCardTabsView>
                 <NitroCardContentView gap={ 1 }>

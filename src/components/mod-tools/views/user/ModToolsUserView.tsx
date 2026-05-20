@@ -76,7 +76,12 @@ export const ModToolsUserView: FC<ModToolsUserViewProps> = props =>
         [ roomUserList, userId ]
     );
     const isOnline = isPresentInCurrentRoom || !!(userInfo && userInfo.online);
-    const presenceLabel = isPresentInCurrentRoom ? 'In room' : (isOnline ? 'Online' : 'Offline');
+    const presenceLabel = isPresentInCurrentRoom
+        ? LocalizeText('modtools.userinfo.presence.in_room')
+        : (isOnline ? LocalizeText('modtools.userinfo.presence.online') : LocalizeText('modtools.userinfo.presence.offline'));
+    const presenceTitle = isPresentInCurrentRoom
+        ? LocalizeText('modtools.userinfo.presence.in_room.title')
+        : (isOnline ? LocalizeText('modtools.userinfo.presence.online.title') : LocalizeText('modtools.userinfo.presence.offline.title'));
     const presencePillClass = isPresentInCurrentRoom
         ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
         : isOnline
@@ -132,60 +137,60 @@ export const ModToolsUserView: FC<ModToolsUserViewProps> = props =>
                         </div>
                         <span
                             className={ `inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border ${ presencePillClass }` }
-                            title={ isPresentInCurrentRoom ? 'In the room you are observing' : (isOnline ? 'Online on the hotel' : 'Offline at panel open') }>
+                            title={ presenceTitle }>
                             <span className={ `inline-block w-2 h-2 rounded-full ${ presenceDotClass }` } />
                             { presenceLabel }
                         </span>
                         <button
                             className="inline-flex items-center justify-center w-7 h-7 rounded text-zinc-500 hover:text-sky-700 hover:bg-sky-100 transition-colors shrink-0"
                             onClick={ refresh }
-                            title="Refresh user info">
+                            title={ LocalizeText('modtools.userinfo.refresh') }>
                             <FaSync size={ 12 } />
                         </button>
                     </div>
 
                     {/* Moderation stat strip */}
                     <div className="flex gap-1.5">
-                        <StatCard icon={ <FaExclamationTriangle size={ 10 } /> } label="CFH" tone="warn" value={ userInfo.cfhCount } />
-                        <StatCard icon={ <FaGavel size={ 10 } /> } label="Cautions" tone="warn" value={ userInfo.cautionCount } />
-                        <StatCard icon={ <FaBan size={ 10 } /> } label="Bans" tone="danger" value={ userInfo.banCount } />
-                        <StatCard icon={ <FaExchangeAlt size={ 10 } /> } label="Trade locks" tone="danger" value={ userInfo.tradingLockCount } />
+                        <StatCard icon={ <FaExclamationTriangle size={ 10 } /> } label={ LocalizeText('modtools.userinfo.stat.cfh') } tone="warn" value={ userInfo.cfhCount } />
+                        <StatCard icon={ <FaGavel size={ 10 } /> } label={ LocalizeText('modtools.userinfo.stat.cautions') } tone="warn" value={ userInfo.cautionCount } />
+                        <StatCard icon={ <FaBan size={ 10 } /> } label={ LocalizeText('modtools.userinfo.stat.bans') } tone="danger" value={ userInfo.banCount } />
+                        <StatCard icon={ <FaExchangeAlt size={ 10 } /> } label={ LocalizeText('modtools.userinfo.stat.trade.locks') } tone="danger" value={ userInfo.tradingLockCount } />
                     </div>
 
                     {/* Body sections */}
                     <div className="flex flex-col gap-2 max-h-[300px] overflow-auto pr-1">
-                        <Section title="Account">
-                            <Field label="Email" value={ userInfo.primaryEmailAddress } />
-                            <Field label="Registered" value={ FriendlyTime.format(userInfo.registrationAgeInMinutes * 60, '.ago', 2) } />
-                            <Field label="Classification" value={ userInfo.userClassification } />
+                        <Section title={ LocalizeText('modtools.userinfo.section.account') }>
+                            <Field label={ LocalizeText('modtools.userinfo.primaryEmailAddress') } value={ userInfo.primaryEmailAddress } />
+                            <Field label={ LocalizeText('modtools.userinfo.registrationAgeInMinutes') } value={ FriendlyTime.format(userInfo.registrationAgeInMinutes * 60, '.ago', 2) } />
+                            <Field label={ LocalizeText('modtools.userinfo.userClassification') } value={ userInfo.userClassification } />
                         </Section>
-                        <Section title="Activity">
-                            <Field label="Last login" value={ FriendlyTime.format(userInfo.minutesSinceLastLogin * 60, '.ago', 2) } />
-                            <Field label="Last purchase" value={ userInfo.lastPurchaseDate } />
+                        <Section title={ LocalizeText('modtools.userinfo.section.activity') }>
+                            <Field label={ LocalizeText('modtools.userinfo.minutesSinceLastLogin') } value={ FriendlyTime.format(userInfo.minutesSinceLastLogin * 60, '.ago', 2) } />
+                            <Field label={ LocalizeText('modtools.userinfo.lastPurchaseDate') } value={ userInfo.lastPurchaseDate } />
                         </Section>
-                        <Section title="Sanctions">
-                            <Field label="Abusive CFH" value={ userInfo.abusiveCfhCount } />
-                            <Field label="Last sanction" value={ userInfo.lastSanctionTime } />
-                            <Field label="Identity bans" value={ userInfo.identityRelatedBanCount } />
+                        <Section title={ LocalizeText('modtools.userinfo.section.sanctions') }>
+                            <Field label={ LocalizeText('modtools.userinfo.abusiveCfhCount') } value={ userInfo.abusiveCfhCount } />
+                            <Field label={ LocalizeText('modtools.userinfo.lastSanctionTime') } value={ userInfo.lastSanctionTime } />
+                            <Field label={ LocalizeText('modtools.userinfo.identityRelatedBanCount') } value={ userInfo.identityRelatedBanCount } />
                         </Section>
-                        <Section title="Trading">
-                            <Field label="Lock expires" value={ userInfo.tradingExpiryDate } />
+                        <Section title={ LocalizeText('modtools.userinfo.section.trading') }>
+                            <Field label={ LocalizeText('modtools.userinfo.tradingExpiryDate') } value={ userInfo.tradingExpiryDate } />
                         </Section>
                     </div>
 
                     {/* Action bar */}
                     <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-zinc-200">
                         <Button gap={ 1 } variant="secondary" onClick={ () => CreateLinkEvent(`mod-tools/open-user-chatlog/${ userId }`) }>
-                            <FaCommentDots size={ 12 } /> Room Chat
+                            <FaCommentDots size={ 12 } /> { LocalizeText('modtools.userinfo.button.room.chat') }
                         </Button>
                         <Button gap={ 1 } variant="secondary" onClick={ () => setSendMessageVisible(prev => !prev) }>
-                            <FaEnvelope size={ 12 } /> Send Message
+                            <FaEnvelope size={ 12 } /> { LocalizeText('modtools.userinfo.button.send.message') }
                         </Button>
                         <Button gap={ 1 } variant="secondary" onClick={ () => setRoomVisitsVisible(prev => !prev) }>
-                            <FaDoorOpen size={ 12 } /> Room Visits
+                            <FaDoorOpen size={ 12 } /> { LocalizeText('modtools.userinfo.button.room.visits') }
                         </Button>
                         <Button gap={ 1 } variant="danger" onClick={ () => setModActionVisible(prev => !prev) }>
-                            <FaGavel size={ 12 } /> Mod Action
+                            <FaGavel size={ 12 } /> { LocalizeText('modtools.userinfo.button.mod.action') }
                         </Button>
                     </div>
                 </NitroCardContentView>
