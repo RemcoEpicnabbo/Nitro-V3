@@ -3,6 +3,7 @@ import { FC, useEffect, useMemo } from 'react';
 import { getHousekeepingMode, HousekeepingTabId, isHousekeepingEnabled, isHousekeepingTabAvailable, LocalizeText } from '../../api';
 import { DraggableWindowPosition, NitroCardContentView, NitroCardHeaderView, NitroCardTabsItemView, NitroCardTabsView, NitroCardView, WidgetErrorBoundary } from '../../common';
 import { useHasPermission, useHousekeepingStore } from '../../hooks';
+import { HousekeepingPasswordReveal } from './HousekeepingPasswordReveal';
 import { HousekeepingStatusBanner } from './HousekeepingStatusBanner';
 import { HousekeepingAuditTab } from './views/audit/HousekeepingAuditTab';
 import { HousekeepingDashboardTab } from './views/dashboard/HousekeepingDashboardTab';
@@ -198,6 +199,7 @@ export const HousekeepingView: FC = () =>
                         </NitroCardTabsItemView> }
                 </NitroCardTabsView>
                 <HousekeepingStatusBanner />
+                <HousekeepingPasswordReveal />
                 <NitroCardContentView className="text-black" gap={ 2 }>
                     { activeView }
                 </NitroCardContentView>

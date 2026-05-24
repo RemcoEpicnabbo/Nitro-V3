@@ -94,7 +94,7 @@ const validationOr = (key: HousekeepingErrorKey, markDone: (e: string | null, s:
  */
 export const useHousekeepingActions = () =>
 {
-    const { selectedUser, selectedRoom, markActionPending, markActionDone, setSelectedUser, setSelectedRoom, recordActionMetric } = useHousekeepingStore();
+    const { selectedUser, selectedRoom, markActionPending, markActionDone, setSelectedUser, setSelectedRoom, recordActionMetric, revealPassword } = useHousekeepingStore();
     const { showSingleBubble } = useNotification();
     // Stable closure-bound runner so every action below stays a
     // one-liner: only the runner thunk + a per-action telemetry
@@ -151,8 +151,53 @@ export const useHousekeepingActions = () =>
     {
         if(!validationOr(validatePositiveId(userId, 'user'), markActionDone)) return null;
 
-        return runAction(() => HousekeepingApi.resetUserPassword(userId), 'resetUserPassword');
-    }, [ runAction, markActionDone ]);
+        // Run the action with a localizable success message — we
+        // INTERCEPT before `wrap`'s default behavior leaks the plaintext
+        // into the auto-dismissing status banner. The emulator returns
+        // the freshly-generated plaintext in `result.message`; we lift it
+        // into the dedicated `passwordReveal` slot which renders a
+        // persistent card with a copy button. The wrapping `runAction`
+        // would also fire a transient toast with whatever string lands
+        // in `message`, so we bypass it via a direct API call + manual
+        // status writes here.
+        const username = (selectedUser && selectedUser.id === userId) ? selectedUser.username : '';
+
+        markActionPending();
+        const startedAt = typeof performance !== 'undefined' ? performance.now() : Date.now();
+        const measure = (isError: boolean) =>
+        {
+            const endedAt = typeof performance !== 'undefined' ? performance.now() : Date.now();
+            recordActionMetric('resetUserPassword', endedAt - startedAt, isError);
+        };
+
+        try
+        {
+            const result = await HousekeepingApi.resetUserPassword(userId);
+
+            if(!result || result.ok === false)
+            {
+                markActionDone(result?.message || 'housekeeping.action.error', null);
+                measure(true);
+                return result ?? null;
+            }
+
+            const plaintext = result.message ?? '';
+
+            if(plaintext) revealPassword(userId, username, plaintext);
+
+            // Generic success key — does NOT include the plaintext, so
+            // even if the banner is visible the password isn't in it.
+            markActionDone(null, 'housekeeping.action.reset_password.done');
+            measure(false);
+            return result;
+        }
+        catch(error)
+        {
+            markActionDone(String((error as Error)?.message ?? error), null);
+            measure(true);
+            return null;
+        }
+    }, [ markActionPending, markActionDone, selectedUser, revealPassword, recordActionMetric ]);
 
     const setUserRank = useCallback(async (userId: number, rank: number) =>
     {

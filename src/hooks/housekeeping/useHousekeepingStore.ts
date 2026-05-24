@@ -42,6 +42,19 @@ const useHousekeepingStoreInner = () =>
     // on referential equality — mutating a Set in place would miss
     // updates. Capped via the dedupe in toggleUserSelection.
     const [ selectedUserIds, setSelectedUserIds ] = useState<number[]>([]);
+    // Password-reveal state — when reset-password succeeds, the emulator
+    // returns the freshly-generated plaintext password in the action
+    // result. We hold it in a dedicated state slot (not the success
+    // banner) so it doesn't auto-dismiss and the operator can read /
+    // copy it. Cleared manually via `clearPasswordReveal()` — sensitive
+    // data, treat it like a one-shot secret.
+    const [ passwordReveal, setPasswordReveal ] = useState<{ userId: number; username: string; password: string } | null>(null);
+    const revealPassword = useCallback((userId: number, username: string, password: string) =>
+    {
+        if(!password) return;
+        setPasswordReveal({ userId, username, password });
+    }, []);
+    const clearPasswordReveal = useCallback(() => setPasswordReveal(null), []);
     // Per-action latency / count / error metrics. Map → triggers a
     // new reference on every update so subscribers re-render.
     // Capped per-action via `recordSample`'s sliding window so the
@@ -497,6 +510,9 @@ const useHousekeepingStoreInner = () =>
         selectedUserIds,
         toggleUserSelection,
         clearUserSelection,
+        passwordReveal,
+        revealPassword,
+        clearPasswordReveal,
         metricsByAction,
         recordActionMetric,
         resetActionMetrics
