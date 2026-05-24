@@ -234,7 +234,7 @@ export const FloorplanEditorView: FC = () =>
                             onUndo={ undo }
                             onRedo={ redo }
                             panMode={ panMode }
-                            onTogglePanMode={ () => setPanMode(v => !v) }
+                            setPanMode={ setPanMode }
                         />
                         <FloorplanOptionsPanel state={ state } dispatch={ dispatch } />
                         <Flex gap={ 2 } className="flex-1 min-h-0">

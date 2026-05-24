@@ -12,7 +12,14 @@ type Props = {
     onUndo?: () => void;
     onRedo?: () => void;
     panMode?: boolean;
-    onTogglePanMode?: () => void;
+    /**
+     * Imperative setter for pan mode. Receiving the explicit
+     * value (not a toggle) lets every tool button switch the
+     * hand off on click without needing to know its current
+     * state — the hand is part of the same exclusive tool group
+     * as the brushes, so picking any brush has to clear it.
+     */
+    setPanMode?: (next: boolean) => void;
 };
 
 const BRUSH_BUTTONS: { id: string; mode: FloorActionMode; iconClass: string }[] = [
@@ -23,45 +30,71 @@ const BRUSH_BUTTONS: { id: string; mode: FloorActionMode; iconClass: string }[] 
     { id: 'tool-door',  mode: 'DOOR',  iconClass: 'icon-set-door' }
 ];
 
-export const FloorplanToolbar: FC<Props> = ({ state, dispatch, canUndo, canRedo, onUndo, onRedo, panMode, onTogglePanMode }) =>
+export const FloorplanToolbar: FC<Props> = ({ state, dispatch, canUndo, canRedo, onUndo, onRedo, panMode, setPanMode }) =>
 {
+    // The hand and the brush buttons form a single exclusive tool
+    // group. Picking ANY other tool clears pan mode so the user
+    // never ends up in 'I clicked SET but the canvas still pans'.
+    const exitPan = () =>
+    {
+        if(panMode && setPanMode) setPanMode(false);
+    };
+
     return (
         <Flex gap={ 1 } alignItems="center">
-            <Text bold small>{ LocalizeText('floor.plan.editor.draw.mode') }</Text>
-            { BRUSH_BUTTONS.map(b => (
-                <Base
-                    key={ b.id }
-                    pointer
-                    data-testid={ b.id }
-                    data-active={ state.brush.action === b.mode ? 'true' : 'false' }
-                    className={ `nitro-icon ${ b.iconClass } ${ state.brush.action === b.mode ? 'border border-primary' : '' }` }
-                    onClick={ () => dispatch({ type: 'BRUSH_SET', action: b.mode }) }
-                />
-            )) }
-            <Base
-                pointer
-                data-testid="tool-select-all"
-                className={ `nitro-icon ${ state.selection.size > 0 ? 'icon-set-deselect' : 'icon-set-select' }` }
-                onClick={ () => dispatch({ type: 'SELECT_ALL' }) }
-            />
-            <Base
-                pointer
-                data-testid="tool-square-select"
-                className={ `nitro-icon icon-set-squaresselect ${ state.squareSelect ? 'border border-primary' : '' }` }
-                onClick={ () => dispatch({ type: 'SQUARE_SELECT_TOGGLE' }) }
-            />
-            { onTogglePanMode && (
+            { setPanMode && (
                 <Base
                     pointer
                     data-testid="tool-pan"
                     data-active={ panMode ? 'true' : 'false' }
-                    title={ panMode ? 'Modalità mano attiva — trascina per spostare la vista (Spazio per uscire)' : 'Modalità mano — trascina per spostare la vista' }
-                    className={ `ml-1 w-7 h-7 flex items-center justify-center rounded border ${ panMode ? 'bg-emerald-500 border-emerald-700 text-white shadow-inner' : 'border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-700' }` }
-                    onClick={ onTogglePanMode }
+                    title={ panMode ? 'Modalità mano attiva — trascina per spostare la vista' : 'Modalità mano — trascina per spostare la vista' }
+                    className={ `w-7 h-7 flex items-center justify-center rounded border mr-1 ${ panMode ? 'bg-emerald-500 border-emerald-700 text-white shadow-inner' : 'border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-700' }` }
+                    onClick={ () => setPanMode(!panMode) }
                 >
                     <FaHandPaper size={ 12 } />
                 </Base>
             ) }
+            <Text bold small>{ LocalizeText('floor.plan.editor.draw.mode') }</Text>
+            { BRUSH_BUTTONS.map(b =>
+            {
+                const active = state.brush.action === b.mode && !panMode;
+
+                return (
+                    <Base
+                        key={ b.id }
+                        pointer
+                        data-testid={ b.id }
+                        data-active={ active ? 'true' : 'false' }
+                        className={ `nitro-icon ${ b.iconClass } ${ active ? 'border border-primary' : '' }` }
+                        onClick={ () =>
+                        {
+                            exitPan();
+                            dispatch({ type: 'BRUSH_SET', action: b.mode });
+                        } }
+                    />
+                );
+            }) }
+            <Base
+                pointer
+                data-testid="tool-select-all"
+                className={ `nitro-icon ${ state.selection.size > 0 ? 'icon-set-deselect' : 'icon-set-select' }` }
+                onClick={ () =>
+                {
+                    exitPan();
+                    dispatch({ type: 'SELECT_ALL' });
+                } }
+            />
+            <Base
+                pointer
+                data-testid="tool-square-select"
+                data-active={ state.squareSelect && !panMode ? 'true' : 'false' }
+                className={ `nitro-icon icon-set-squaresselect ${ state.squareSelect && !panMode ? 'border border-primary' : '' }` }
+                onClick={ () =>
+                {
+                    exitPan();
+                    dispatch({ type: 'SQUARE_SELECT_TOGGLE' });
+                } }
+            />
             { (onUndo || onRedo) && (
                 <Flex gap={ 1 } alignItems="center" className="ml-2 pl-2 border-l border-zinc-300">
                     <Base
