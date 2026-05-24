@@ -121,4 +121,22 @@ describe('FloorplanHeightPicker', () =>
 
         restore();
     });
+
+    it('thumb fill matches the tile colour at the picked height', () =>
+    {
+        // h=0 is solid blue (#0065ff in COLORMAP). Re-render at a
+        // different height and assert the recorded thumb colour
+        // changes — i.e., the thumb tracks the band underneath.
+        const { rerender } = render(<FloorplanHeightPicker selectedH={ 0 } onSelect={ () => undefined } />);
+
+        const colourAtZero = screen.getByTestId('height-thumb').getAttribute('data-thumb-color');
+
+        rerender(<FloorplanHeightPicker selectedH={ 13 } onSelect={ () => undefined } />);
+
+        const colourAtThirteen = screen.getByTestId('height-thumb').getAttribute('data-thumb-color');
+
+        expect(colourAtZero).toBeTruthy();
+        expect(colourAtThirteen).toBeTruthy();
+        expect(colourAtZero).not.toBe(colourAtThirteen);
+    });
 });

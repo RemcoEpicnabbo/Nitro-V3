@@ -13,6 +13,26 @@ const THUMB_DIAM = 28;
 const RAIL_GUTTER = 4;
 
 /**
+ * Perceptual-luminance heuristic. Returns true if a hex colour is
+ * 'light enough' that black text reads better than white. Uses the
+ * Rec. 601 luma coefficients — good enough for a UI affordance,
+ * cheap to compute, no dep on a colour lib.
+ */
+const isLightColor = (hex: string): boolean =>
+{
+    const c = hex.replace('#', '');
+
+    if(c.length !== 6) return true;
+
+    const r = parseInt(c.slice(0, 2), 16);
+    const g = parseInt(c.slice(2, 4), 16);
+    const b = parseInt(c.slice(4, 6), 16);
+    const luma = (0.299 * r) + (0.587 * g) + (0.114 * b);
+
+    return luma > 160;
+};
+
+/**
  * Vertical brush-height slider.
  *
  * Track   - discrete-step gradient built from the real tile-fill
@@ -107,6 +127,8 @@ export const FloorplanHeightPicker: FC<Props> = ({ selectedH, onSelect }) =>
     }, [ isDragging, heightFromClientY, onSelect, selectedH ]);
 
     const thumbPct = ((HEIGHT_BRUSH_MAX - selectedH) / (count - 1)) * 100;
+    const thumbColor = tileFill({ h: selectedH, blocked: false });
+    const thumbTextDark = isLightColor(thumbColor);
 
     return (
         <div
@@ -136,14 +158,23 @@ export const FloorplanHeightPicker: FC<Props> = ({ selectedH, onSelect }) =>
                 />
                 <div
                     data-testid="height-thumb"
-                    className={ `absolute left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full flex items-center justify-center text-[11px] font-bold text-zinc-900 tabular-nums pointer-events-none transition-shadow ${ isDragging ? 'ring-2 ring-zinc-900' : isHovering ? 'ring-2 ring-white/80' : '' }` }
+                    data-thumb-color={ thumbColor }
+                    className={ `absolute left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full flex items-center justify-center text-[11px] font-bold tabular-nums pointer-events-none transition-[box-shadow,transform] ${ thumbTextDark ? 'text-zinc-900' : 'text-white' } ${ isDragging ? 'ring-2 ring-zinc-900 scale-110' : isHovering ? 'ring-2 ring-white' : '' }` }
                     style={ {
                         width: THUMB_DIAM,
                         height: THUMB_DIAM,
                         top: `${ thumbPct }%`,
-                        background: 'radial-gradient(circle at 35% 30%, #fff7c4 0%, #facc15 55%, #ca8a04 100%)',
-                        border: '2px solid #78350f',
-                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.25), inset 0 -2px 3px rgba(0, 0, 0, 0.18)'
+                        // Thumb fill picks up the colour of the band
+                        // under it — visual continuity with the
+                        // gradient so users see the colour of the
+                        // height they're picking, not a generic
+                        // amber chip. Radial highlight + bottom
+                        // shadow give it a beaded look without
+                        // hiding the underlying colour.
+                        background: `radial-gradient(circle at 32% 28%, ${ thumbTextDark ? 'rgba(255, 255, 255, 0.85)' : 'rgba(255, 255, 255, 0.55)' } 0%, ${ thumbColor } 45%, ${ thumbColor } 78%, rgba(0, 0, 0, 0.25) 100%)`,
+                        border: '2px solid rgba(0, 0, 0, 0.55)',
+                        boxShadow: '0 2px 5px rgba(0, 0, 0, 0.35), inset 0 -2px 3px rgba(0, 0, 0, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.4)',
+                        textShadow: thumbTextDark ? '0 1px 0 rgba(255, 255, 255, 0.6)' : '0 1px 1px rgba(0, 0, 0, 0.55)'
                     } }
                 >
                     { selectedH }
