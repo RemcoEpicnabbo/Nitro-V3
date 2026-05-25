@@ -73,10 +73,10 @@ export const CatalogNavigationItemView: FC<CatalogNavigationItemViewProps> = pro
     }, [ adminMode, node, catalogAdmin ]);
 
     return (
-        <div className={ child ? 'pl-1.5 ml-1.5 border-l-2 border-card-grid-item-border' : '' }>
+        <div className={ `nitro-catalog-classic-navigation-node ${ child ? 'is-child' : '' }` }>
             <div
                 ref={ dragRef }
-                className={ `group/nav flex items-center gap-1.5 px-1.5 py-[3px] mx-0.5 rounded cursor-pointer transition-all duration-100 text-[11px] ${ node.isActive ? 'bg-card-grid-item-active border border-card-grid-item-border-active shadow-inner1px font-bold' : 'border border-transparent hover:bg-card-grid-item-active' } ${ isDragOver ? 'ring-2 ring-primary ring-offset-1 bg-primary/10' : '' }` }
+                className={ `nitro-catalog-classic-navigation-item group/nav ${ node.isActive ? 'is-active' : '' } ${ node.isBranch ? 'is-branch' : 'is-leaf' } ${ node.isOpen ? 'is-open' : '' } ${ isDragOver ? 'is-drag-over' : '' }` }
                 draggable={ adminMode }
                 onClick={ () => activateNode(node) }
                 onDragLeave={ adminMode ? handleDragLeave : undefined }
@@ -85,13 +85,13 @@ export const CatalogNavigationItemView: FC<CatalogNavigationItemViewProps> = pro
                 onDrop={ adminMode ? handleDrop : undefined }
             >
                 { adminMode &&
-                    <FaArrowsAlt className="text-[7px] text-muted cursor-grab shrink-0 opacity-0 group-hover/nav:opacity-60" /> }
-                <div className="w-5 h-5 flex items-center justify-center shrink-0">
+                    <FaArrowsAlt className="nitro-catalog-classic-navigation-drag text-[7px] text-muted cursor-grab shrink-0 opacity-0 group-hover/nav:opacity-60" /> }
+                <div className="nitro-catalog-classic-navigation-icon">
                     <CatalogIconView icon={ node.iconId } />
                 </div>
-                <span className="flex-1 truncate" title={ adminMode ? `Page ID: ${ node.pageId }` : undefined }>{ node.localization }</span>
+                <span className="nitro-catalog-classic-navigation-label" title={ adminMode ? `Page ID: ${ node.pageId }` : undefined }>{ node.localization }</span>
                 { adminMode &&
-                    <div className="flex items-center gap-1 opacity-0 group-hover/nav:opacity-100 transition-opacity">
+                    <div className="nitro-catalog-classic-navigation-admin flex items-center gap-1 opacity-0 group-hover/nav:opacity-100 transition-opacity">
                         <FaPlus
                             className="text-[8px] text-success hover:text-green-800"
                             title={ LocalizeText('catalog.admin.create.subpage') }
@@ -125,11 +125,11 @@ export const CatalogNavigationItemView: FC<CatalogNavigationItemViewProps> = pro
                     </div> }
                 { !adminMode && node.pageId > 0 &&
                     <FaStar
-                        className={ `text-[8px] transition-all duration-100 cursor-pointer shrink-0 ${ isFav ? 'text-warning opacity-100' : 'text-muted opacity-0 group-hover/nav:opacity-100 hover:text-warning' }` }
+                        className={ `nitro-catalog-classic-navigation-favorite text-[8px] transition-all duration-100 cursor-pointer shrink-0 ${ isFav ? 'text-warning opacity-100' : 'text-muted opacity-0 group-hover/nav:opacity-100 hover:text-warning' }` }
                         onClick={ e => { e.stopPropagation(); toggleFavoritePage(node.pageId); } }
                     /> }
                 { node.isBranch &&
-                    <span className="text-[9px] text-muted shrink-0">
+                    <span className="nitro-catalog-classic-navigation-caret text-[9px] text-muted shrink-0">
                         { node.isOpen ? <FaCaretUp /> : <FaCaretDown /> }
                     </span> }
             </div>

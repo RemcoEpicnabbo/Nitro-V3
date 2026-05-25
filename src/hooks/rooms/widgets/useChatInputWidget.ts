@@ -189,6 +189,13 @@ const useChatInputWidgetState = () =>
                 case ':customize':
                     CreateLinkEvent('customize/show');
                     return null;
+                case ':emustats':
+                    if(GetSessionDataManager().isModerator)
+                    {
+                        CreateLinkEvent('emustats/toggle');
+                    }
+
+                    return null;
             }
         }
 
