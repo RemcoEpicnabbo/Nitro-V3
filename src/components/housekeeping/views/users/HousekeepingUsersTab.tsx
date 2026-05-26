@@ -64,9 +64,6 @@ export const HousekeepingUsersTab: FC = () =>
 
         if(!template) return;
 
-        // Pre-fill the duration inputs the template targets, and seed
-        // the reason textarea — operator can still tweak before
-        // hitting the per-action button.
         setReason(template.defaultReason);
 
         if(template.type === HousekeepingSanctionType.BAN) setBanHours(template.durationValue);
@@ -78,8 +75,6 @@ export const HousekeepingUsersTab: FC = () =>
     {
         if(selectedUserIds.length === 0) return;
 
-        // Big bulks need a confirm — a stray click can sanction
-        // dozens of users in one shot otherwise.
         if(selectedUserIds.length >= BULK_CONFIRM_THRESHOLD)
         {
             confirm(
@@ -102,7 +97,6 @@ export const HousekeepingUsersTab: FC = () =>
 
     return (
         <div className="flex flex-col gap-2">
-            {/* Lookup with autocomplete */}
             <div className="relative">
                 <div className="flex gap-1.5 items-center">
                     <div className="flex items-center gap-1 grow rounded border border-zinc-300 bg-white px-2 py-1">
@@ -115,7 +109,6 @@ export const HousekeepingUsersTab: FC = () =>
                             onFocus={ () => setIsFocused(true) }
                             onBlur={ () =>
                             {
-                                // Defer hide so onClick on a suggestion fires first
                                 if(blurTimerRef.current) clearTimeout(blurTimerRef.current);
                                 blurTimerRef.current = setTimeout(() => setIsFocused(false), 120);
                             } }
@@ -182,11 +175,6 @@ export const HousekeepingUsersTab: FC = () =>
                     </div> }
             </div>
 
-            {/* Bulk selection footer — appears whenever at least one user
-                is checked in the autocomplete dropdown. Applies the same
-                sanction (using the current reason + duration controls
-                below) to every selected user; ≥5 selected triggers a
-                themed confirm modal. */}
             { selectedUserIds.length > 0 &&
                 <div className="flex items-center gap-1 flex-wrap rounded border border-sky-300 bg-sky-50 p-1.5">
                     <span className="text-[10px] uppercase tracking-wide font-semibold text-sky-800 mr-1">
@@ -212,35 +200,10 @@ export const HousekeepingUsersTab: FC = () =>
                     </button>
                 </div> }
 
-            { /* Selected user hero card */ }
             { selectedUser
                 ? (
                     <div className="relative overflow-hidden rounded-lg border border-sky-200 bg-gradient-to-br from-sky-50 via-white to-emerald-50 p-3 shadow-sm">
                         <div className="flex items-start gap-3">
-                            { /* Live avatar head — renders the selected user's
-                               in-game figure as a head crop. Falls back to
-                               the modtools sprite when figure is empty (e.g.
-                               a never-logged-in account).
-
-                               Implementation note: `LayoutAvatarImageView`
-                               is internally a fixed 90x130 background-image
-                               box anchored at left:-2px (see
-                               `src/common/layout/LayoutAvatarImageView.tsx`).
-                               The earlier approach of forcing the box to
-                               28x28 + transform:scale(0.42) was wrong on
-                               two counts: clamping width/height clipped
-                               the head BEFORE the transform ran, and the
-                               transform-origin centered the residual on
-                               a 28x28 layout that no longer contained
-                               anything visible — the bubble rendered empty.
-
-                               Correct pattern (same one `GroupMembersView`
-                               uses for its 40x50 head bubbles): leave the
-                               avatar element at its natural 90x130 size,
-                               position it absolutely with negative offsets
-                               so the head sits centered in the viewport,
-                               and let `overflow-hidden` on the parent crop
-                               the rest. No scale, no width override. */ }
                             <div className="relative rounded-full bg-sky-100 ring-2 ring-sky-200 shrink-0 w-[50px] h-[50px] overflow-hidden">
                                 { selectedUser.figure
                                     ? <LayoutAvatarImageView classNames={ [ '!absolute', '!-left-[20px]', '!-top-[20px]' ] } direction={ 2 } figure={ selectedUser.figure } headOnly={ true } />
@@ -267,12 +230,7 @@ export const HousekeepingUsersTab: FC = () =>
                                 </div>
                                 <div className="text-xs text-zinc-600 truncate mt-0.5 italic">{ selectedUser.motto || '—' }</div>
                                 <div className="grid grid-cols-3 gap-1 text-[10px] mt-2">
-                                    { /* LayoutCurrencyIcon resolves `currency.asset.icon.url`
-                                       (`${images.url}/wallet/%type%.png`) — type=-1 is the
-                                       credits coin, type=0 the ducket/pixel, type=5 the
-                                       diamond. Sizes default to 15x15 which fits the badge
-                                       row without extra overrides. */ }
-                                    <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-50 border border-amber-200" title={ LocalizeText('housekeeping.user.credits') }>
+                                     <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-50 border border-amber-200" title={ LocalizeText('housekeeping.user.credits') }>
                                         <LayoutCurrencyIcon type={ -1 } />
                                         <span className="tabular-nums font-semibold text-amber-800">{ selectedUser.creditsBalance.toLocaleString() }</span>
                                     </div>
@@ -307,7 +265,6 @@ export const HousekeepingUsersTab: FC = () =>
                     </div>
                 ) }
 
-            { /* Live in-room actions */ }
             { selectedUser && selectedUser.online &&
                 <div className="rounded-md border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-1.5 flex items-center gap-1 flex-wrap shadow-sm">
                     <span className="text-[10px] uppercase tracking-wider font-bold text-amber-800 mr-1 flex items-center gap-1">
@@ -331,7 +288,6 @@ export const HousekeepingUsersTab: FC = () =>
                     </Button>
                 </div> }
 
-            { /* Sanction template + Reason — grouped surface */ }
             <div className="flex flex-col gap-1.5 rounded-md border border-zinc-200 bg-zinc-50/50 p-2">
                 <div className="flex items-center gap-1.5">
                     <label className="text-[10px] uppercase tracking-wider font-semibold opacity-60 shrink-0">Template</label>
@@ -353,7 +309,6 @@ export const HousekeepingUsersTab: FC = () =>
                     onChange={ event => setReason(event.target.value) } />
             </div>
 
-            { /* Sanctions */ }
             <label className="text-[10px] uppercase tracking-wider font-semibold opacity-60 -mb-0.5">{ LocalizeText('housekeeping.field.duration') }</label>
             <div className="grid grid-cols-2 gap-1.5">
                 <div className="flex items-center gap-1 rounded-md border border-rose-200 bg-rose-50/40 px-1.5 py-1">
@@ -366,7 +321,7 @@ export const HousekeepingUsersTab: FC = () =>
                     <span className="text-[10px] text-rose-700">h</span>
                     <Button variant="danger" disabled={ disableActions } className="grow ml-auto" onClick={ () => banUser(selectedUser.id, reasonOrDefault, banHours) }>
                         <FaBan size={ 10 } />
-                        <span className="ml-1">{ LocalizeText('housekeeping.action.ban_h', [ 'h' ], [ String(banHours) ]) }</span>
+                        <span className="ml-1 text-white">{ LocalizeText('housekeeping.action.ban_h', [ 'h' ], [ String(banHours) ]) }</span>
                     </Button>
                 </div>
                 <div className="flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50/40 px-1.5 py-1">
@@ -392,7 +347,7 @@ export const HousekeepingUsersTab: FC = () =>
                     <span className="text-[10px] text-fuchsia-700">h</span>
                     <Button variant="secondary" disabled={ disableActions } className="grow ml-auto" onClick={ () => tradeLockUser(selectedUser.id, tradeLockHours, reasonOrDefault) }>
                         <FaLock size={ 10 } />
-                        <span className="ml-1">{ LocalizeText('housekeeping.action.trade_lock_h', [ 'h' ], [ String(tradeLockHours) ]) }</span>
+                        <span className="ml-1 text-white">{ LocalizeText('housekeeping.action.trade_lock_h', [ 'h' ], [ String(tradeLockHours) ]) }</span>
                     </Button>
                 </div>
                 <Button variant="warning" disabled={ disableActions } onClick={ () => kickUser(selectedUser.id, reasonOrDefault) }>
@@ -401,15 +356,14 @@ export const HousekeepingUsersTab: FC = () =>
                 </Button>
                 <Button variant="danger" disabled={ disableActions || !selectedUser?.isBanned } onClick={ () => unbanUser(selectedUser.id) }>
                     <FaExclamationTriangle size={ 10 } />
-                    <span className="ml-1">{ LocalizeText('housekeeping.action.unban') }</span>
+                    <span className="ml-1 text-white">{ LocalizeText('housekeeping.action.unban') }</span>
                 </Button>
                 <Button variant="danger" disabled={ disableActions } onClick={ () => forceDisconnectUser(selectedUser.id, reasonOrDefault) }>
                     <FaPlug size={ 10 } />
-                    <span className="ml-1">{ LocalizeText('housekeeping.action.force_disconnect') }</span>
+                    <span className="ml-1 text-white">{ LocalizeText('housekeeping.action.force_disconnect') }</span>
                 </Button>
             </div>
 
-            { /* Rank + password — privileged actions card */ }
             <div className="grid grid-cols-2 gap-1.5 rounded-md border border-violet-200 bg-violet-50/40 p-2">
                 <div className="flex items-center gap-1">
                     <input
@@ -421,12 +375,12 @@ export const HousekeepingUsersTab: FC = () =>
                         onChange={ event => setRankDraft(parseInt(event.target.value) || 0) } />
                     <Button variant="primary" disabled={ disableActions } className="grow" onClick={ () => setUserRank(selectedUser.id, rankDraft) }>
                         <FaUserShield size={ 10 } />
-                        <span className="ml-1">{ LocalizeText('housekeeping.action.set_rank') }</span>
+                        <span className="ml-1 text-white">{ LocalizeText('housekeeping.action.set_rank') }</span>
                     </Button>
                 </div>
                 <Button variant="dark" disabled={ disableActions } onClick={ () => resetUserPassword(selectedUser.id) }>
                     <FaKey size={ 10 } />
-                    <span className="ml-1">{ LocalizeText('housekeeping.action.reset_password') }</span>
+                    <span className="ml-1 text-white">{ LocalizeText('housekeeping.action.reset_password') }</span>
                 </Button>
             </div>
 

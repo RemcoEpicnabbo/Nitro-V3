@@ -33,15 +33,8 @@ const passesFilter = (entry: IHousekeepingActionLogEntry, target: TargetFilter, 
 export const HousekeepingAuditTab: FC = () =>
 {
     const { actionLog, refreshAuditLog, metricsByAction, resetActionMetrics } = useHousekeepingStore();
-    // Gated behind a UI-config flag (off by default) so non-debug
-    // operators don't see internal latency stats. The flag is read
-    // once at mount — flipping the config requires a reload, same
-    // as every other UI-config gate.
     const telemetryEnabled = useMemo(() => GetConfigurationValue<boolean>('housekeeping.telemetry.enabled', false) === true, []);
     const [ isTelemetryExpanded, setIsTelemetryExpanded ] = useState(false);
-    // Filter state is persisted per user so an HK who's iterating on
-    // "show me failures only, filtered to 'spam'" doesn't reset every
-    // time they switch tabs or close the panel.
     const [ targetFilter, setTargetFilter ] = useLocalStorage<TargetFilter>('nitro.housekeeping.audit.target_filter', 'all');
     const [ successFilter, setSuccessFilter ] = useLocalStorage<SuccessFilter>('nitro.housekeeping.audit.success_filter', 'all');
     const [ query, setQuery ] = useLocalStorage<string>('nitro.housekeeping.audit.query', '');
@@ -73,7 +66,6 @@ export const HousekeepingAuditTab: FC = () =>
 
     return (
         <div className="flex flex-col gap-2">
-            { /* Header w/ counts + refresh */ }
             <div className="flex items-center justify-between gap-2">
                 <h3 className="text-xs uppercase tracking-wider font-semibold opacity-60 flex items-center gap-1">
                     <FaFilter size={ 10 } />
@@ -87,7 +79,7 @@ export const HousekeepingAuditTab: FC = () =>
                 </h3>
                 <Button size="sm" variant="secondary" disabled={ isRefreshing } onClick={ refresh }>
                     <FaSync size={ 9 } className={ isRefreshing ? 'animate-spin' : '' } />
-                    <span className="ml-1">{ LocalizeText('housekeeping.audit.refresh') }</span>
+                    <span className="ml-1 text-white">{ LocalizeText('housekeeping.audit.refresh') }</span>
                 </Button>
             </div>
 

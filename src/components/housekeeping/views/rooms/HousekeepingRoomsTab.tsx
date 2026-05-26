@@ -16,15 +16,8 @@ export const HousekeepingRoomsTab: FC = () =>
     const [ query, setQuery ] = useState('');
     const [ muteMinutes, setMuteMinutes ] = useState<number>(DEFAULT_MUTE_MINUTES);
     const [ newOwnerId, setNewOwnerId ] = useState<number>(0);
-
     const confirm = useHousekeepingConfirm();
-
     const currentRoomId = roomSession && roomSession.roomId > 0 ? roomSession.roomId : 0;
-
-    // Empty query + Cerca → fall back to the room the operator is
-    // currently standing in. Saves a copy-paste of the room id from
-    // navigator just to inspect "this room". Mirrors how /ban / /kick
-    // in chat default to the active room.
     const submitLookup = () =>
     {
         const trimmed = query.trim();
@@ -53,7 +46,6 @@ export const HousekeepingRoomsTab: FC = () =>
 
     return (
         <div className="flex flex-col gap-2">
-            { /* Lookup bar */ }
             <div className="flex gap-1.5 items-center">
                 <div className="flex items-center gap-1 grow rounded-md border border-zinc-300 bg-white px-2 py-1 shadow-sm focus-within:ring-1 focus-within:ring-sky-300 focus-within:border-sky-400 transition-colors">
                     <FaSearch className="text-zinc-400 shrink-0" size={ 11 } />
@@ -83,8 +75,6 @@ export const HousekeepingRoomsTab: FC = () =>
                     <span>{ LocalizeText('housekeeping.room.search.button') }</span>
                 </Button>
             </div>
-
-            { /* Selected room hero card */ }
             { selectedRoom
                 ? (
                     <div className="relative overflow-hidden rounded-lg border border-sky-200 bg-gradient-to-br from-sky-50 via-white to-violet-50 p-3 shadow-sm">
@@ -139,16 +129,14 @@ export const HousekeepingRoomsTab: FC = () =>
                         { LocalizeText('housekeeping.room.none') }
                     </div>
                 ) }
-
-            { /* Open / Close + Mute */ }
             <div className="grid grid-cols-2 gap-1.5">
                 <Button variant="success" disabled={ disableActions || !selectedRoom?.isLocked } onClick={ () => openRoom(selectedRoom.id) }>
                     <FaDoorOpen size={ 10 } />
-                    <span className="ml-1">{ LocalizeText('housekeeping.room.open') }</span>
+                    <span className="ml-1 text-white">{ LocalizeText('housekeeping.room.open') }</span>
                 </Button>
                 <Button variant="danger" disabled={ disableActions || selectedRoom?.isLocked } onClick={ () => closeRoom(selectedRoom.id) }>
                     <FaLock size={ 10 } />
-                    <span className="ml-1">{ LocalizeText('housekeeping.room.close') }</span>
+                    <span className="ml-1 text-white">{ LocalizeText('housekeeping.room.close') }</span>
                 </Button>
                 <div className="col-span-2 flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50/40 px-2 py-1.5">
                     <FaVolumeMute size={ 11 } className="text-amber-600" />
@@ -169,11 +157,9 @@ export const HousekeepingRoomsTab: FC = () =>
                 </Button>
                 <Button variant="danger" disabled={ disableActions } onClick={ () => confirmAndRun('housekeeping.room.delete.confirm', () => deleteRoom(selectedRoom.id)) }>
                     <FaTrash size={ 10 } />
-                    <span className="ml-1">{ LocalizeText('housekeeping.room.delete') }</span>
+                    <span className="ml-1 text-white">{ LocalizeText('housekeeping.room.delete') }</span>
                 </Button>
             </div>
-
-            { /* Transfer ownership card */ }
             <div className="flex flex-col gap-1.5 rounded-md border border-violet-200 bg-violet-50/40 p-2">
                 <label className="text-[10px] uppercase tracking-wider font-semibold opacity-60 flex items-center gap-1">
                     <FaExchangeAlt size={ 8 } className="text-violet-500" />
@@ -189,7 +175,7 @@ export const HousekeepingRoomsTab: FC = () =>
                         onChange={ event => setNewOwnerId(parseInt(event.target.value) || 0) } />
                     <Button variant="primary" disabled={ disableActions || !newOwnerId } className="grow" onClick={ () => transferRoomOwnership(selectedRoom.id, newOwnerId) }>
                         <FaExchangeAlt size={ 10 } />
-                        <span className="ml-1">{ LocalizeText('housekeeping.room.transfer') }</span>
+                        <span className="ml-1 text-white">{ LocalizeText('housekeeping.room.transfer') }</span>
                     </Button>
                 </div>
             </div>

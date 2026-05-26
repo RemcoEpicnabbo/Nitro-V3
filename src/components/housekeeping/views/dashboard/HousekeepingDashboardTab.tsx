@@ -70,26 +70,17 @@ export const HousekeepingDashboardTab: FC = () =>
     const [ now, setNow ] = useState(() => Date.now());
     const [ refreshedAt, setRefreshedAt ] = useState<number | null>(null);
 
-    // Tag every successful dashboard payload with a local timestamp.
-    // Triggered when the `dashboard` reference flips post-refresh.
     useEffect(() =>
     {
         if(dashboard) setRefreshedAt(Date.now());
     }, [ dashboard ]);
 
-    // Wall-clock tick — drives the "live X seconds ago" copy + the
-    // stale-banner trigger. Cheap (1 setState/s) and only runs while
-    // the tab is mounted.
     useEffect(() =>
     {
         const id = setInterval(() => setNow(Date.now()), 1_000);
         return () => clearInterval(id);
     }, []);
 
-    // Auto-refresh: polls getDashboard every AUTO_REFRESH_MS while the
-    // tab is mounted. The HK panel's parent already kicks off an
-    // initial refresh on open, so this only handles the steady-state
-    // re-fetch; closing the tab unmounts the effect and stops the loop.
     const refreshRef = useRef(refreshDashboard);
     refreshRef.current = refreshDashboard;
 
@@ -161,7 +152,6 @@ export const HousekeepingDashboardTab: FC = () =>
 
     return (
         <div className="flex flex-col gap-2.5">
-            { /* Header row: title + live status badge + refresh */ }
             <div className="flex items-center justify-between">
                 <h3 className="text-xs uppercase tracking-wider font-semibold opacity-60 flex items-center gap-1">
                     <FaChartLine size={ 10 } />
@@ -176,7 +166,7 @@ export const HousekeepingDashboardTab: FC = () =>
                     </span>
                     <Button size="sm" variant="secondary" disabled={ isDashboardLoading } onClick={ () => refreshDashboard() }>
                         <FaSync size={ 9 } className={ isDashboardLoading ? 'animate-spin' : '' } />
-                        <span className="ml-1">{ LocalizeText('housekeeping.dashboard.refresh') }</span>
+                        <span className="ml-1 text-white">{ LocalizeText('housekeeping.dashboard.refresh') }</span>
                     </Button>
                 </div>
             </div>
@@ -196,7 +186,6 @@ export const HousekeepingDashboardTab: FC = () =>
 
             { dashboard &&
                 <>
-                    { /* Hero card: BIG online count + pulsing dot + peak today */ }
                     <div className="relative overflow-hidden rounded-lg border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-sky-50 p-3 shadow-sm">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
@@ -252,7 +241,6 @@ export const HousekeepingDashboardTab: FC = () =>
                         </div>
                     </div>
 
-                    { /* Quick hotel-alert inline */ }
                     <form onSubmit={ onSubmitAlert } className="flex flex-col gap-1.5 rounded-lg border border-amber-200 bg-amber-50/40 p-2.5">
                         <label className="text-[10px] uppercase tracking-wider font-semibold opacity-60 flex items-center gap-1">
                             <FaBolt size={ 9 } className="text-amber-500" />
@@ -275,7 +263,6 @@ export const HousekeepingDashboardTab: FC = () =>
                     </form>
                 </> }
 
-            { /* Recent sanctions */ }
             { recentSanctions.length > 0 &&
                 <div className="flex flex-col gap-1">
                     <h4 className="text-[10px] uppercase tracking-wider font-semibold opacity-60 pt-1">
@@ -294,7 +281,6 @@ export const HousekeepingDashboardTab: FC = () =>
                     </ul>
                 </div> }
 
-            { /* Recent lookups — clickable pills that re-select the target */ }
             { recentLookups.length > 0 &&
                 <div className="flex flex-col gap-1">
                     <h4 className="text-[10px] uppercase tracking-wider font-semibold opacity-60 pt-1">

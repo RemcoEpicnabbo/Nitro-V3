@@ -28,7 +28,6 @@ export const HousekeepingEconomyTab: FC = () =>
 
     return (
         <div className="flex flex-col gap-2.5">
-            { /* Target banner */ }
             { !selectedUser
                 ? (
                     <div className="flex items-center gap-2 rounded-lg border border-dashed border-amber-300 bg-amber-50/50 p-2.5 text-xs text-amber-700">
@@ -44,10 +43,7 @@ export const HousekeepingEconomyTab: FC = () =>
                         <div className="text-sm font-semibold tabular-nums">{ selectedUser.username } <span className="text-zinc-400 font-normal">#{ selectedUser.id }</span></div>
                     </div>
                 ) }
-
-            { /* Currency grants — tone-coded surfaces */ }
             <div className="flex flex-col gap-1.5">
-                { /* Credits — amber */ }
                 <div className="flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50/40 px-2 py-1.5">
                     <LayoutCurrencyIcon type={ -1 } classNames={ [ 'shrink-0' ] } />
                     <input
@@ -58,11 +54,9 @@ export const HousekeepingEconomyTab: FC = () =>
                         onChange={ event => setCreditsAmount(parseInt(event.target.value) || 0) } />
                     <Button variant="success" disabled={ disableUserActions } className="grow ml-auto" onClick={ () => giveCredits(selectedUser.id, creditsAmount) }>
                         <FaPiggyBank size={ 10 } />
-                        <span className="ml-1">{ LocalizeText('housekeeping.economy.give_credits') }</span>
+                        <span className="ml-1 text-white">{ LocalizeText('housekeeping.economy.give_credits') }</span>
                     </Button>
                 </div>
-
-                { /* Duckets — orange */ }
                 <div className="flex items-center gap-1.5 rounded-md border border-orange-200 bg-orange-50/40 px-2 py-1.5">
                     <LayoutCurrencyIcon type={ 0 } classNames={ [ 'shrink-0' ] } />
                     <input
@@ -73,11 +67,9 @@ export const HousekeepingEconomyTab: FC = () =>
                         onChange={ event => setDucketsAmount(parseInt(event.target.value) || 0) } />
                     <Button variant="success" disabled={ disableUserActions } className="grow ml-auto" onClick={ () => giveDuckets(selectedUser.id, ducketsAmount) }>
                         <FaPiggyBank size={ 10 } />
-                        <span className="ml-1">{ LocalizeText('housekeeping.economy.give_duckets') }</span>
+                        <span className="ml-1 text-white">{ LocalizeText('housekeeping.economy.give_duckets') }</span>
                     </Button>
                 </div>
-
-                { /* Diamonds — sky */ }
                 <div className="flex items-center gap-1.5 rounded-md border border-sky-200 bg-sky-50/40 px-2 py-1.5">
                     <LayoutCurrencyIcon type={ 5 } classNames={ [ 'shrink-0' ] } />
                     <input
@@ -88,12 +80,10 @@ export const HousekeepingEconomyTab: FC = () =>
                         onChange={ event => setDiamondsAmount(parseInt(event.target.value) || 0) } />
                     <Button variant="success" disabled={ disableUserActions } className="grow ml-auto" onClick={ () => giveDiamonds(selectedUser.id, diamondsAmount) }>
                         <FaPiggyBank size={ 10 } />
-                        <span className="ml-1">{ LocalizeText('housekeeping.economy.give_diamonds') }</span>
+                        <span className="ml-1 text-white">{ LocalizeText('housekeeping.economy.give_diamonds') }</span>
                     </Button>
                 </div>
             </div>
-
-            { /* Grant item card */ }
             <div className="flex flex-col gap-1.5 rounded-md border border-violet-200 bg-violet-50/40 p-2">
                 <label className="text-[10px] uppercase tracking-wider font-semibold opacity-60 flex items-center gap-1">
                     <FaGift size={ 8 } className="text-violet-500" />
@@ -116,12 +106,10 @@ export const HousekeepingEconomyTab: FC = () =>
                         onChange={ event => setItemQuantity(parseInt(event.target.value) || 0) } />
                     <Button variant="primary" disabled={ disableUserActions || !itemId } className="grow" onClick={ () => grantItem(selectedUser.id, itemId, itemQuantity) }>
                         <FaGift size={ 10 } />
-                        <span className="ml-1">{ LocalizeText('housekeeping.economy.grant_item') }</span>
+                        <span className="ml-1 text-white">{ LocalizeText('housekeeping.economy.grant_item') }</span>
                     </Button>
                 </div>
             </div>
-
-            { /* HC subscription */ }
             <div className="flex items-center gap-1.5 rounded-md border border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-50 px-2 py-1.5">
                 <FaCrown size={ 13 } className="text-amber-600 shrink-0" />
                 <input
@@ -136,8 +124,6 @@ export const HousekeepingEconomyTab: FC = () =>
                     <span className="ml-1">{ LocalizeText('housekeeping.economy.set_hc_days') }</span>
                 </Button>
             </div>
-
-            { /* Hotel-wide alert */ }
             <div className="flex flex-col gap-1.5 rounded-md border border-rose-200 bg-rose-50/40 p-2">
                 <label className="text-[10px] uppercase tracking-wider font-semibold opacity-60 flex items-center gap-1">
                     <FaBullhorn size={ 9 } className="text-rose-500" />
@@ -154,7 +140,6 @@ export const HousekeepingEconomyTab: FC = () =>
                     {
                         const dispatch = () => sendHotelAlert(trimmedAlert);
 
-                        // Lungo alert hotel-wide → conferma esplicita.
                         if(trimmedAlert.length >= HOTEL_ALERT_CONFIRM_THRESHOLD)
                         {
                             confirm(LocalizeText('housekeeping.hotel.alert.confirm', [ 'count' ], [ String(trimmedAlert.length) ]), dispatch);
@@ -165,7 +150,7 @@ export const HousekeepingEconomyTab: FC = () =>
                         dispatch();
                     } }>
                         <FaBullhorn size={ 10 } />
-                        <span className="ml-1">{ LocalizeText('housekeeping.hotel.alert.send') }</span>
+                        <span className="ml-1 text-white">{ LocalizeText('housekeeping.hotel.alert.send') }</span>
                     </Button>
                 </div>
             </div>
