@@ -109,7 +109,7 @@ export const NavigatorView: FC<{}> = props =>
         <>
             { isVisible &&
                 <NitroCard
-                    className={ `${ isOpenSavesSearches ? 'w-[600px] min-w-[600px]' : 'w-navigator-w min-w-navigator-w' } h-navigator-h min-h-navigator-h` }
+                    className={ `${ isOpenSavesSearches ? 'w-[600px] sm:min-w-[600px]' : 'w-navigator-w sm:min-w-navigator-w' } max-w-[calc(100vw-1rem)] h-navigator-h min-h-navigator-h` }
                     uniqueKey="navigator">
                     <NitroCard.Header
                         headerText={ LocalizeText(isCreatorOpen ? 'navigator.createroom.title' : 'navigator.title') }
@@ -136,12 +136,12 @@ export const NavigatorView: FC<{}> = props =>
                     </NitroCard.Tabs>
                     <NitroCard.Content>
                         { !isCreatorOpen &&
-                            <div className="flex h-full overflow-hidden gap-2">
+                            <div className="flex flex-col sm:flex-row h-full overflow-hidden gap-2">
                                 { isOpenSavesSearches &&
-                                    <div className="overflow-hidden pr-1 shrink-0">
+                                    <div className="overflow-hidden pr-1 shrink-0 w-full sm:w-auto max-h-40 sm:max-h-none">
                                         <NavigatorSearchSavesResultView searches={ navigatorSearches || [] } />
                                     </div> }
-                                <div className="flex flex-col w-full overflow-hidden gap-2">
+                                <div className="flex flex-col w-full min-h-0 overflow-hidden gap-2">
                                     <NavigatorSearchView searchResult={ searchResult } />
                                     <div ref={ elementRef } className="flex flex-col flex-1 min-h-0 overflow-auto gap-2">
                                         { (isFetching && !searchResult) &&
