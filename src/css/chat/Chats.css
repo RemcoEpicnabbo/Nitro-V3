@@ -809,6 +809,9 @@
 
         &.bubble-253 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_253.png');
+            border-image-slice: 16 22 15 27 fill;
+            border-image-width: 16px 22px 15px 27px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_253_pointer.png');
@@ -817,6 +820,9 @@
 
         &.bubble-254 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_254.png');
+            border-image-slice: 7 28 15 25 fill;
+            border-image-width: 7px 28px 15px 25px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_254_pointer.png');
@@ -825,6 +831,9 @@
 
         &.bubble-255 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_255.png');
+            border-image-slice: 12 19 22 30 fill;
+            border-image-width: 12px 19px 22px 30px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_255_pointer.png');
@@ -833,6 +842,9 @@
 
         &.bubble-256 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_256.png');
+            border-image-slice: 24 18 10 31 fill;
+            border-image-width: 24px 18px 10px 31px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_256_pointer.png');
@@ -841,6 +853,9 @@
 
         &.bubble-257 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_257.png');
+            border-image-slice: 6 17 19 36 fill;
+            border-image-width: 6px 17px 19px 36px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_257_pointer.png');
@@ -849,6 +864,9 @@
 
         &.bubble-258 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_258.png');
+            border-image-slice: 22 27 10 27 fill;
+            border-image-width: 22px 27px 10px 27px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_258_pointer.png');
@@ -857,6 +875,9 @@
 
         &.bubble-259 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_259.png');
+            border-image-slice: 21 27 18 37 fill;
+            border-image-width: 21px 27px 18px 37px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_259_pointer.png');
@@ -865,6 +886,9 @@
 
         &.bubble-260 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_260.png');
+            border-image-slice: 6 22 16 27 fill;
+            border-image-width: 6px 22px 16px 27px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_260_pointer.png');
@@ -873,6 +897,9 @@
 
         &.bubble-261 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_261.png');
+            border-image-slice: 18 27 5 22 fill;
+            border-image-width: 18px 27px 5px 22px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_261_pointer.png');
@@ -881,6 +908,9 @@
 
         &.bubble-262 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_262.png');
+            border-image-slice: 33 31 11 34 fill;
+            border-image-width: 33px 31px 11px 34px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_262_pointer.png');
@@ -889,6 +919,9 @@
 
         &.bubble-263 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_263.png');
+            border-image-slice: 15 19 10 32 fill;
+            border-image-width: 15px 19px 10px 32px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_263_pointer.png');
@@ -897,6 +930,9 @@
 
         &.bubble-264 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_264.png');
+            border-image-slice: 18 24 16 25 fill;
+            border-image-width: 18px 24px 16px 25px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_264_pointer.png');
@@ -905,6 +941,9 @@
 
         &.bubble-265 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_265.png');
+            border-image-slice: 41 40 17 18 fill;
+            border-image-width: 41px 40px 17px 18px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_265_pointer.png');
@@ -913,6 +952,9 @@
 
         &.bubble-266 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_266.png');
+            border-image-slice: 13 34 22 27 fill;
+            border-image-width: 13px 34px 22px 27px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_266_pointer.png');
@@ -921,6 +963,9 @@
 
         &.bubble-267 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_267.png');
+            border-image-slice: 17 30 22 25 fill;
+            border-image-width: 17px 30px 22px 25px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_267_pointer.png');
@@ -929,6 +974,9 @@
 
         &.bubble-268 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_268.png');
+            border-image-slice: 7 30 21 24 fill;
+            border-image-width: 7px 30px 21px 24px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_268_pointer.png');
@@ -937,6 +985,9 @@
 
         &.bubble-269 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_269.png');
+            border-image-slice: 10 23 25 35 fill;
+            border-image-width: 10px 23px 25px 35px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_269_pointer.png');
@@ -945,6 +996,9 @@
 
         &.bubble-270 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_270.png');
+            border-image-slice: 13 30 14 26 fill;
+            border-image-width: 13px 30px 14px 26px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_270_pointer.png');
@@ -953,6 +1007,9 @@
 
         &.bubble-271 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_271.png');
+            border-image-slice: 23 23 9 35 fill;
+            border-image-width: 23px 23px 9px 35px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_271_pointer.png');
@@ -961,6 +1018,9 @@
 
         &.bubble-272 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_272.png');
+            border-image-slice: 9 31 24 25 fill;
+            border-image-width: 9px 31px 24px 25px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_272_pointer.png');
@@ -969,6 +1029,9 @@
 
         &.bubble-273 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_273.png');
+            border-image-slice: 11 16 25 37 fill;
+            border-image-width: 11px 16px 25px 37px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_273_pointer.png');
@@ -977,6 +1040,9 @@
 
         &.bubble-274 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_274.png');
+            border-image-slice: 7 22 19 27 fill;
+            border-image-width: 7px 22px 19px 27px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_274_pointer.png');
@@ -985,6 +1051,9 @@
 
         &.bubble-275 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_275.png');
+            border-image-slice: 8 23 14 26 fill;
+            border-image-width: 8px 23px 14px 26px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_275_pointer.png');
@@ -993,6 +1062,9 @@
 
         &.bubble-276 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_276.png');
+            border-image-slice: 12 40 17 17 fill;
+            border-image-width: 12px 40px 17px 17px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_276_pointer.png');
@@ -1001,6 +1073,9 @@
 
         &.bubble-277 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_277.png');
+            border-image-slice: 6 39 18 17 fill;
+            border-image-width: 6px 39px 18px 17px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_277_pointer.png');
@@ -1009,6 +1084,9 @@
 
         &.bubble-278 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_278.png');
+            border-image-slice: 16 38 6 19 fill;
+            border-image-width: 16px 38px 6px 19px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_278_pointer.png');
@@ -1017,6 +1095,9 @@
 
         &.bubble-279 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_279.png');
+            border-image-slice: 6 26 16 23 fill;
+            border-image-width: 6px 26px 16px 23px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_279_pointer.png');
@@ -1025,6 +1106,9 @@
 
         &.bubble-280 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_280.png');
+            border-image-slice: 23 29 6 15 fill;
+            border-image-width: 23px 29px 6px 15px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_280_pointer.png');
@@ -1033,6 +1117,9 @@
 
         &.bubble-281 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_281.png');
+            border-image-slice: 18 42 9 18 fill;
+            border-image-width: 18px 42px 9px 18px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_281_pointer.png');
@@ -1041,6 +1128,9 @@
 
         &.bubble-282 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_282.png');
+            border-image-slice: 18 42 9 18 fill;
+            border-image-width: 18px 42px 9px 18px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_282_pointer.png');
@@ -1049,6 +1139,9 @@
 
         &.bubble-283 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_283.png');
+            border-image-slice: 17 26 13 31 fill;
+            border-image-width: 17px 26px 13px 31px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_283_pointer.png');
@@ -1057,6 +1150,9 @@
 
         &.bubble-284 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_284.png');
+            border-image-slice: 9 26 23 26 fill;
+            border-image-width: 9px 26px 23px 26px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_284_pointer.png');
@@ -1065,6 +1161,9 @@
 
         &.bubble-285 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_285.png');
+            border-image-slice: 16 35 15 15 fill;
+            border-image-width: 16px 35px 15px 15px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_285_pointer.png');
@@ -1073,6 +1172,9 @@
 
         &.bubble-286 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_286.png');
+            border-image-slice: 18 22 4 23 fill;
+            border-image-width: 18px 22px 4px 23px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_286_pointer.png');
@@ -1081,6 +1183,9 @@
 
         &.bubble-287 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_287.png');
+            border-image-slice: 6 22 18 26 fill;
+            border-image-width: 6px 22px 18px 26px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_287_pointer.png');
@@ -1089,6 +1194,9 @@
 
         &.bubble-288 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_288.png');
+            border-image-slice: 18 31 11 24 fill;
+            border-image-width: 18px 31px 11px 24px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_288_pointer.png');
@@ -1097,6 +1205,9 @@
 
         &.bubble-289 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_289.png');
+            border-image-slice: 7 54 17 24 fill;
+            border-image-width: 7px 54px 17px 24px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_289_pointer.png');
@@ -1105,6 +1216,9 @@
 
         &.bubble-290 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_290.png');
+            border-image-slice: 18 24 14 29 fill;
+            border-image-width: 18px 24px 14px 29px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_290_pointer.png');
@@ -1113,52 +1227,13 @@
 
         &.bubble-291 {
             border-image-source: url('@/assets/images/chat/chatbubbles/bubble_291.png');
+            border-image-slice: 9 26 11 35 fill;
+            border-image-width: 9px 26px 11px 35px;
+            border-image-repeat: stretch stretch;
 
             .pointer {
                 background: url('@/assets/images/chat/chatbubbles/bubble_291_pointer.png');
             }
-        }
-
-        &.bubble-253,
-        &.bubble-254,
-        &.bubble-255,
-        &.bubble-256,
-        &.bubble-257,
-        &.bubble-258,
-        &.bubble-259,
-        &.bubble-260,
-        &.bubble-261,
-        &.bubble-262,
-        &.bubble-263,
-        &.bubble-264,
-        &.bubble-265,
-        &.bubble-266,
-        &.bubble-267,
-        &.bubble-268,
-        &.bubble-269,
-        &.bubble-270,
-        &.bubble-271,
-        &.bubble-272,
-        &.bubble-273,
-        &.bubble-274,
-        &.bubble-275,
-        &.bubble-276,
-        &.bubble-277,
-        &.bubble-278,
-        &.bubble-279,
-        &.bubble-280,
-        &.bubble-281,
-        &.bubble-282,
-        &.bubble-283,
-        &.bubble-284,
-        &.bubble-285,
-        &.bubble-286,
-        &.bubble-287,
-        &.bubble-288,
-        &.bubble-289,
-        &.bubble-290,
-        &.bubble-291 {
-            border-image-repeat: stretch stretch;
         }
 
         &.bubble-200,
