@@ -405,7 +405,7 @@ export const UserAccountSettingsView: FC<{}> = () =>
                             direction={ 2 }
                             headOnly={ true }
                             scale={ 1 }
-                            classNames={ [ '!absolute !left-1/2 !top-[56%] !w-[64px] !h-[64px] !-translate-x-1/2 !-translate-y-1/2 !bg-center !bg-no-repeat' ] }
+                            style={ { backgroundSize: '112px auto', backgroundPosition: '-24px -38px' } }
                         />
                     </div>
                 ) }
