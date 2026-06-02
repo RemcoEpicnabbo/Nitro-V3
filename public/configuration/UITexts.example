@@ -266,5 +266,6 @@
     "loading.task.rooms": "loading rooms...",
     "loading.task.engine": "loading graphics engine...",
 	"catalog.gift_wrapping.gift_sent": "Done!",
-    "messenger.offline.delivered": "Sent while you were offline"
+    "messenger.offline.delivered": "Sent while you were offline",
+    "messenger.typing": "%FRIEND_NAME% is typing..."
 }
