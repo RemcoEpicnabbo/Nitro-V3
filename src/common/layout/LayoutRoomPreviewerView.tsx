@@ -8,13 +8,8 @@ export const LayoutRoomPreviewerView: FC<{
 {
     const { roomPreviewer = null, height = 0 } = props;
     const elementRef = useRef<HTMLDivElement>(null);
-    // Latch that disables further renders once Pixi throws inside this
-    // previewer. The crash (e.g. blackhole furni's filter chain that
-    // accesses .alphaMode on a null texture) repeats every animation
-    // frame as long as the ticker keeps firing, flooding the console
-    // and locking the catalog. One catch and we stop trying for the
-    // lifetime of this previewer instance.
-    const renderFailedRef = useRef(false);
+    const renderFailuresRef = useRef(0);
+    const MAX_RENDER_FAILURES = 6;
 
     const onClick = (event: MouseEvent<HTMLDivElement>) =>
     {
@@ -28,14 +23,24 @@ export const LayoutRoomPreviewerView: FC<{
     {
         if(!elementRef) return;
 
-        renderFailedRef.current = false;
+        renderFailuresRef.current = 0;
 
         const width = elementRef.current.parentElement.clientWidth;
         const texture = TextureUtils.createRenderTexture(width, height);
 
+        const noteFailure = (label: string, error: unknown) =>
+        {
+            renderFailuresRef.current += 1;
+
+            if(renderFailuresRef.current >= MAX_RENDER_FAILURES)
+            {
+                NitroLogger.error(`LayoutRoomPreviewerView ${ label } failed ${ renderFailuresRef.current } times; disabling further renders for this preview`, error);
+            }
+        };
+
         const paintToDOM = () =>
         {
-            if(renderFailedRef.current) return;
+            if(renderFailuresRef.current >= MAX_RENDER_FAILURES) return;
             if(!roomPreviewer || !elementRef.current) return;
 
             const renderingCanvas = roomPreviewer.getRenderingCanvas();
@@ -57,17 +62,17 @@ export const LayoutRoomPreviewerView: FC<{
                 canvas.height = 0;
 
                 elementRef.current.style.backgroundImage = `url(${ base64 })`;
+                renderFailuresRef.current = 0;
             }
             catch(error)
             {
-                renderFailedRef.current = true;
-                NitroLogger.error('LayoutRoomPreviewerView paint failed; disabling further renders for this preview', error);
+                noteFailure('paint', error);
             }
         };
 
         const update = (ticker: NitroTicker) =>
         {
-            if(renderFailedRef.current) return;
+            if(renderFailuresRef.current >= MAX_RENDER_FAILURES) return;
             if(!roomPreviewer || !elementRef.current) return;
 
             try
@@ -76,8 +81,7 @@ export const LayoutRoomPreviewerView: FC<{
             }
             catch(error)
             {
-                renderFailedRef.current = true;
-                NitroLogger.error('LayoutRoomPreviewerView update failed; disabling further renders for this preview', error);
+                noteFailure('update', error);
                 return;
             }
 

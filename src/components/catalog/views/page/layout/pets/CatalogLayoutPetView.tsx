@@ -291,7 +291,7 @@ export const CatalogLayoutPetView: FC<CatalogLayoutProps> = props =>
                             { LocalizeText('catalog.pets.back.breeds') }
                         </button> }
                 </div>
-                <div className={ colorsShowing ? 'nitro-catalog-classic-color-swatches flex flex-wrap gap-1 p-2 overflow-auto' : 'grid grid-cols-6 gap-1' }>
+                <div className={ colorsShowing ? 'nitro-catalog-classic-color-swatches flex flex-wrap gap-1 p-2 overflow-auto' : 'nitro-catalog-classic-pet-breeds flex flex-wrap gap-1 p-1 overflow-auto' }>
                     { !colorsShowing && (sellablePalettes.length > 0) && sellablePalettes.map((palette, index) => (
                         <LayoutGridItem
                             key={ index }
