@@ -79,8 +79,6 @@ export const InfoStandWidgetFurniView: FC<InfoStandWidgetFurniViewProps> = props
     const descriptionsEnabled = GetConfigurationValue<boolean>('furni.descriptions.enabled', true);
     const itemLocationEnabled = GetConfigurationValue<boolean>('furni.location.enabled', true);
     const itemLocationRequireAccess = GetConfigurationValue<boolean>('furni.location.require.access', true);
-    const isValidController = (avatarInfo.roomControllerLevel >= RoomControllerLevel.GUEST);
-    const hasAccess = (isValidController || avatarInfo.isOwner || avatarInfo.isRoomOwner || avatarInfo.isAnyRoomController)
     const [ pickupMode, setPickupMode ] = useState(0);
     const [ canMove, setCanMove ] = useState(false);
     const [ canRotate, setCanRotate ] = useState(false);
@@ -212,7 +210,9 @@ export const InfoStandWidgetFurniView: FC<InfoStandWidgetFurniViewProps> = props
             setFurniLocationZ(location.z);
         }
 
-        if(hasAccess)
+        const isValidController = (avatarInfo.roomControllerLevel >= RoomControllerLevel.GUEST);
+
+        if(isValidController || avatarInfo.isOwner || avatarInfo.isRoomOwner || avatarInfo.isAnyRoomController)
         {
             canMove = true;
             canRotate = !avatarInfo.isWallItem;
@@ -523,6 +523,7 @@ export const InfoStandWidgetFurniView: FC<InfoStandWidgetFurniViewProps> = props
                             <Text small wrap variant="white">{ avatarInfo.name }</Text>
                             <FaTimes className="cursor-pointer fa-icon" onClick={ onClose } />
                         </Flex>
+                        <hr className="m-0 bg-[#0003] border-0 opacity-[.5] h-px" />
                     </div>
                     { !isBranded &&
                         <div className="flex flex-col gap-1">
@@ -607,7 +608,7 @@ export const InfoStandWidgetFurniView: FC<InfoStandWidgetFurniViewProps> = props
                                     <Text underline variant="white">{ groupName }</Text>
                                 </Flex>
                             </> }
-                        { ((itemLocation.x > -1) && itemLocationEnabled && (!itemLocationRequireAccess || hasAccess)) &&
+                        { ((itemLocation.x > -1) && itemLocationEnabled && (!itemLocationRequireAccess || canMove)) &&
                             <>
                                 <hr className="m-0 bg-[#0003] border-0 opacity-[.5] h-px" />
                                 <div className="flex items-center gap-1 min-w-0">
