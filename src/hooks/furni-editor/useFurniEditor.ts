@@ -291,6 +291,17 @@ export const useFurniEditor = () =>
         SendMessageComposer(new FurniEditorRevertFurnidataComposer(id));
     }, []);
 
+    // Fill an empty items_base.public_name from the furnidata display name. Reuses
+    // the generic item update (a partial { publicName } payload is accepted), so the
+    // existing 'update' result path shows the toast and re-fetches the detail.
+    const syncPublicName = useCallback((id: number, name: string) =>
+    {
+        setLoading(true);
+        setError(null);
+        pendingActionRef.current = { action: 'update', itemId: id };
+        SendMessageComposer(new FurniEditorUpdateComposer(id, JSON.stringify({ publicName: name })));
+    }, []);
+
     const importText = useCallback((id: number) =>
     {
         setLoading(true);
@@ -323,6 +334,6 @@ export const useFurniEditor = () =>
         selectedItem, setSelectedItem, catalogItems, furniDataEntry, furniDataDiagnostic,
         interactions,
         searchItems, loadDetail, loadBySpriteId, updateItem, deleteItem, loadInteractions,
-        updateFurnidata, revertFurnidata, importText, importResult
+        updateFurnidata, revertFurnidata, syncPublicName, importText, importResult
     };
 };

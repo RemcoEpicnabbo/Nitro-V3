@@ -15,6 +15,7 @@ interface FurniEditorEditViewProps
     onBack: () => void;
     onUpdateFurnidata: (id: number, name: string, description: string) => void;
     onRevertFurnidata: (id: number) => void;
+    onSyncPublicName: (id: number, name: string) => void;
     onImportText: (id: number) => void;
     importResult: { found: boolean; name: string; description: string; classname: string; nonce: number } | null;
 }
@@ -122,7 +123,7 @@ const CopyValue: FC<{ value: string | number }> = ({ value }) =>
 
 export const FurniEditorEditView: FC<FurniEditorEditViewProps> = props =>
 {
-    const { item, furniDataEntry, furniDataDiagnostic, interactions, loading, onUpdate, onDelete, onBack, onUpdateFurnidata, onRevertFurnidata, onImportText, importResult } = props;
+    const { item, furniDataEntry, furniDataDiagnostic, interactions, loading, onUpdate, onDelete, onBack, onUpdateFurnidata, onRevertFurnidata, onSyncPublicName, onImportText, importResult } = props;
     const saveRef = useRef<() => void>(null);
 
     const [ form, setForm ] = useState({
@@ -250,6 +251,15 @@ export const FurniEditorEditView: FC<FurniEditorEditViewProps> = props =>
     // classname-mismatch case (an entry resolved by id but for a different
     // classname), which stays locked to avoid an id collision.
     const furnidataCreatable = useMemo(() => !furniDataEntry, [ furniDataEntry ]);
+
+    // Show a one-click "sync" when the DB public_name is empty but the (matching)
+    // furnidata entry already has a name — fills items_base.public_name from the
+    // stored furnidata name so the DB fallback stops being blank.
+    const canSyncPublicName = useMemo(() =>
+        furnidataEditable &&
+        !String(form.publicName ?? '').trim() &&
+        !!String(furniDataEntry?.name ?? '').trim(),
+    [ furnidataEditable, form.publicName, furniDataEntry ]);
 
     // True only when the name/description actually differ from the stored furnidata
     // entry. Used to gate the Save button: saving an unchanged value makes the
@@ -427,6 +437,10 @@ export const FurniEditorEditView: FC<FurniEditorEditViewProps> = props =>
                     <div>
                         <label className={ labelClass }>Public Name (DB fallback)</label>
                         <CopyValue value={ form.publicName } />
+                        { canSyncPublicName &&
+                            <Button variant="secondary" disabled={ loading } className="mt-1 w-full" onClick={ () => onSyncPublicName(item.id, String(furniDataEntry?.name ?? '')) }>
+                                Sync from furnidata
+                            </Button> }
                     </div>
                     <div>
                         <label className={ labelClass }>Sprite ID</label>
