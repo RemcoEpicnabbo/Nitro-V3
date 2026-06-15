@@ -47,6 +47,20 @@ const EARNINGS: EarningRow[] = [
     { key: 'clubwork', textKey: 'earnings.clubwork.label', label: 'Club e Lavoro', img: imgGeneric, currencies: [ 0 ] }
 ];
 
+// Scoped colour override for the Guadagni window only: classic blue header +
+// cool grey body (the shared 'primary-slim' theme is teal + cream). Higher
+// specificity (.nitro-card.nitro-vault ...) than the theme so it wins.
+const VAULT_STYLES = `
+  .nitro-card.nitro-vault .nitro-card-header {
+    background: linear-gradient(180deg, #5a80b8 0%, #3f63a0 100%);
+    border-color: #34548a;
+  }
+  .nitro-card.nitro-vault,
+  .nitro-card.nitro-vault .content-area {
+    background: #dde1e6;
+  }
+`;
+
 export const VaultView: FC<{}> = props =>
 {
     const [ isVisible, setIsVisible ] = useState(false);
@@ -88,6 +102,7 @@ export const VaultView: FC<{}> = props =>
         <NitroCardView className="nitro-vault w-[430px]" theme="primary-slim" uniqueKey="vault">
             <NitroCardHeaderView headerText={ localizeWithFallback('earnings.title', 'Guadagni') } onCloseClick={ () => setIsVisible(false) } />
             <NitroCardContentView className="flex flex-col gap-[5px] text-black">
+                <style>{ VAULT_STYLES }</style>
                 { EARNINGS.map(row => (
                     <div key={ row.key } className="flex items-center gap-2">
                         <div className="flex min-w-0 flex-1 items-center gap-2 rounded-[5px] border border-[#9aa0a8] bg-white px-1.5 py-1">
