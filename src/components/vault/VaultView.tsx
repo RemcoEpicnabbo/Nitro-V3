@@ -82,7 +82,7 @@ export const VaultView: FC<{}> = props =>
 
     return (
         <NitroCardView className="nitro-vault w-[430px]" theme="primary-slim" uniqueKey="vault">
-            <NitroCardHeaderView headerText={ localizeWithFallback('earnings.title', 'Guadagni') } onCloseClick={ () => setIsVisible(false) } />
+            <NitroCardHeaderView headerText="Guadagni" onCloseClick={ () => setIsVisible(false) } />
             <NitroCardContentView className="flex flex-col gap-[5px] text-black">
                 { EARNINGS.map(row => (
                     <div key={ row.key } className="flex items-center gap-2">
