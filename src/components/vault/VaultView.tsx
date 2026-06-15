@@ -1,8 +1,16 @@
 import { AddLinkEventTracker, ILinkEventTracker, RemoveLinkEventTracker } from '@nitrots/nitro-renderer';
 import { FC, useEffect, useState } from 'react';
-import { IconType } from 'react-icons';
-import { FaArrowUp, FaBoxOpen, FaBriefcase, FaCrown, FaGamepad, FaGift, FaHandHoldingHeart, FaShoppingBag, FaStore, FaTrophy } from 'react-icons/fa';
 import { LocalizeText } from '../../api';
+import imgAchievements from '../../assets/images/vault/achievements.png';
+import imgBonusbag from '../../assets/images/vault/bonusbag.png';
+import imgDailygift from '../../assets/images/vault/dailygift.png';
+import imgDonations from '../../assets/images/vault/donations.png';
+import imgGames from '../../assets/images/vault/games.png';
+import imgGeneric from '../../assets/images/vault/generic.png';
+import imgHcpayday from '../../assets/images/vault/hcpayday.png';
+import imgLevel from '../../assets/images/vault/levelprogression.png';
+import imgMarketplace from '../../assets/images/vault/marketplace.png';
+import imgSurprise from '../../assets/images/vault/surprise.png';
 import { LayoutCurrencyIcon, NitroCardContentView, NitroCardHeaderView, NitroCardView, Text } from '../../common';
 
 const localizeWithFallback = (key: string, fallback: string) =>
@@ -15,24 +23,24 @@ interface EarningRow
 {
     key: string;
     label: string;
-    Icon: IconType;
+    img: string;
     currencies: number[];
 }
 
-// Currency ids: 5 = diamonds, 0 = duckets. Amounts are placeholders (0) until
-// the emulator exposes the earnings data + claim packets. The category icons
-// are FontAwesome placeholders — swap in the exact pixel icons once available.
+// Icons are the hotel's real earnings_icon_* assets. Amounts are placeholders
+// (0) and claims are disabled until the emulator exposes the data + packets.
+// 'clubwork' has no dedicated earnings icon — uses the generic one for now.
 const EARNINGS: EarningRow[] = [
-    { key: 'daily', label: 'Regalo giornaliero', Icon: FaGift, currencies: [ 5 ] },
-    { key: 'games', label: 'Giochi', Icon: FaGamepad, currencies: [ 0 ] },
-    { key: 'achievements', label: 'Traguardi', Icon: FaTrophy, currencies: [ 5, 0 ] },
-    { key: 'marketplace', label: 'Mercatino', Icon: FaStore, currencies: [ 0 ] },
-    { key: 'hcpayday', label: 'Bonus giorno di paga HC', Icon: FaCrown, currencies: [ 0 ] },
-    { key: 'level', label: 'Progressione Livello', Icon: FaArrowUp, currencies: [ 5, 0 ] },
-    { key: 'donations', label: 'Donazioni', Icon: FaHandHoldingHeart, currencies: [ 0 ] },
-    { key: 'bonusbag', label: 'Sacco Bonus', Icon: FaShoppingBag, currencies: [ 0 ] },
-    { key: 'surprise', label: 'Scatole Sorprese', Icon: FaBoxOpen, currencies: [ 5, 0 ] },
-    { key: 'clubwork', label: 'Club e Lavoro', Icon: FaBriefcase, currencies: [ 0 ] }
+    { key: 'daily', label: 'Regalo giornaliero', img: imgDailygift, currencies: [ 5 ] },
+    { key: 'games', label: 'Giochi', img: imgGames, currencies: [ 0 ] },
+    { key: 'achievements', label: 'Traguardi', img: imgAchievements, currencies: [ 5, 0 ] },
+    { key: 'marketplace', label: 'Mercatino', img: imgMarketplace, currencies: [ 0 ] },
+    { key: 'hcpayday', label: 'Bonus giorno di paga HC', img: imgHcpayday, currencies: [ 0 ] },
+    { key: 'level', label: 'Progressione Livello', img: imgLevel, currencies: [ 5, 0 ] },
+    { key: 'donations', label: 'Donazioni', img: imgDonations, currencies: [ 0 ] },
+    { key: 'bonusbag', label: 'Sacco Bonus', img: imgBonusbag, currencies: [ 0 ] },
+    { key: 'surprise', label: 'Scatole Sorprese', img: imgSurprise, currencies: [ 5, 0 ] },
+    { key: 'clubwork', label: 'Club e Lavoro', img: imgGeneric, currencies: [ 0 ] }
 ];
 
 export const VaultView: FC<{}> = props =>
@@ -76,32 +84,27 @@ export const VaultView: FC<{}> = props =>
         <NitroCardView className="nitro-vault w-[430px]" theme="primary-slim" uniqueKey="vault">
             <NitroCardHeaderView headerText={ localizeWithFallback('earnings.title', 'Guadagni') } onCloseClick={ () => setIsVisible(false) } />
             <NitroCardContentView className="flex flex-col gap-[5px] text-black">
-                { EARNINGS.map(row =>
-                {
-                    const RowIcon = row.Icon;
-
-                    return (
-                        <div key={ row.key } className="flex items-center gap-2">
-                            <div className="flex min-w-0 flex-1 items-center gap-2 rounded-[5px] border-2 border-[#b3b3b3] bg-white px-1.5 py-1">
-                                <span className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded border border-black/15 bg-white text-[#1e7295]">
-                                    <RowIcon size={ 12 } />
-                                </span>
-                                <Text bold className="truncate">{ localizeWithFallback('earnings.' + row.key, row.label) }</Text>
-                            </div>
-                            <div className="flex min-w-[78px] shrink-0 items-center justify-end gap-2">
-                                { row.currencies.map((currency, index) => (
-                                    <span key={ index } className="flex items-center gap-1">
-                                        <LayoutCurrencyIcon type={ currency } />
-                                        <Text bold small>0</Text>
-                                    </span>
-                                )) }
-                            </div>
-                            <button type="button" disabled className="shrink-0 cursor-default rounded border border-black/20 bg-[#cfcfcf] px-2 py-[3px] text-[0.7rem] font-bold text-black/45">
-                                { localizeWithFallback('earnings.claim', 'Riscatta') }
-                            </button>
+                { EARNINGS.map(row => (
+                    <div key={ row.key } className="flex items-center gap-2">
+                        <div className="flex min-w-0 flex-1 items-center gap-2 rounded-[5px] border-2 border-[#b3b3b3] bg-white px-1.5 py-1">
+                            <span className="flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded border border-black/15 bg-white">
+                                <img src={ row.img } alt="" className="max-h-[24px] max-w-[24px] object-contain [image-rendering:pixelated]" />
+                            </span>
+                            <Text bold className="truncate">{ localizeWithFallback('earnings.' + row.key, row.label) }</Text>
                         </div>
-                    );
-                }) }
+                        <div className="flex min-w-[78px] shrink-0 items-center justify-end gap-2">
+                            { row.currencies.map((currency, index) => (
+                                <span key={ index } className="flex items-center gap-1">
+                                    <LayoutCurrencyIcon type={ currency } />
+                                    <Text bold small>0</Text>
+                                </span>
+                            )) }
+                        </div>
+                        <button type="button" disabled className="shrink-0 cursor-default rounded border border-black/20 bg-[#cfcfcf] px-2 py-[3px] text-[0.7rem] font-bold text-black/45">
+                            { localizeWithFallback('earnings.claim', 'Riscatta') }
+                        </button>
+                    </div>
+                )) }
                 <div className="flex justify-center pt-1">
                     <button type="button" disabled className="cursor-default rounded border border-black/20 bg-[#cfcfcf] px-7 py-1 text-[0.78rem] font-bold text-black/45">
                         { localizeWithFallback('earnings.claim.all', 'Richiedili Tutti') }
