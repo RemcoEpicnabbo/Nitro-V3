@@ -86,3 +86,19 @@ describe('SanitizeHtml — preserves the markup the chat/profile UI relies on', 
         expect(parse('a<br />b').querySelectorAll('br').length).toBe(1);
     });
 });
+
+describe('SanitizeHtml — link safety', () =>
+{
+    it('forces rel="noopener noreferrer" on a target=_blank anchor', () =>
+    {
+        const a = parse('<a href="https://example.com" target="_blank">x</a>').querySelector('a');
+        expect(a).not.toBeNull();
+        expect(a?.getAttribute('rel')).toBe('noopener noreferrer');
+    });
+
+    it('overrides an attacker-supplied rel on a target=_blank anchor', () =>
+    {
+        const a = parse('<a href="https://example.com" target="_blank" rel="opener">x</a>').querySelector('a');
+        expect(a?.getAttribute('rel')).toBe('noopener noreferrer');
+    });
+});
