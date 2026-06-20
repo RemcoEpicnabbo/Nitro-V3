@@ -1,8 +1,9 @@
 import { FC, useEffect, useState } from 'react';
-import { FaLanguage, FaSave, FaSpinner, FaTimes, FaTrash } from 'react-icons/fa';
+import { FaLanguage, FaSave, FaSpinner, FaTrash } from 'react-icons/fa';
 import { CatalogType, LocalizeText } from '../../../../api';
 import { useCatalogData, useCatalogUiState, useTranslationActions, useTranslationState } from '../../../../hooks';
 import { IPageEditData, useCatalogAdmin } from '../../CatalogAdminContext';
+import { CatalogAdminModalView } from './CatalogAdminModalView';
 
 const LAYOUT_OPTIONS = [
     'default_3x3', 'frontpage4', 'pets', 'pets2', 'pets3',
@@ -11,7 +12,7 @@ const LAYOUT_OPTIONS = [
     'vip_buy', 'builders_club_frontpage', 'builders_club_addons', 'builders_club_loyalty', 'marketplace', 'marketplace_own_items',
     'recycler', 'recycler_info', 'recycler_prizes',
     'info_loyalty', 'badge_display', 'bots', 'single_bundle',
-    'color_grouping', 'recent_purchases', 'custom_prefix'
+    'color_grouping', 'recent_purchases'
 ];
 
 const MODE_OPTIONS = [
@@ -194,15 +195,11 @@ export const CatalogAdminPageEditView: FC<{}> = () =>
     };
 
     return (
-        <div className="bg-white rounded border-2 border-card-grid-item-border p-2.5 mb-2">
-            <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-bold text-primary uppercase tracking-wide">
-                    { isRoot ? LocalizeText('catalog.admin.edit.root') : `${ LocalizeText('catalog.admin.edit') } ${ editingPageDetails?.caption ?? '' }` }
-                </span>
-                <FaTimes className="text-muted cursor-pointer hover:text-danger text-[10px]" onClick={ closeForm } />
-            </div>
-
-            <div className="grid grid-cols-3 gap-1.5">
+        <CatalogAdminModalView
+            title={ isRoot ? LocalizeText('catalog.admin.edit.root') : `${ LocalizeText('catalog.admin.edit') } ${ editingPageDetails?.caption ?? '' }` }
+            widthClassName="w-[520px]"
+            onClose={ closeForm }>
+                    <div className="grid grid-cols-3 gap-1.5">
                 <div className="flex flex-col gap-0.5 col-span-2">
                     <label className="text-[9px] text-muted uppercase font-bold">Caption</label>
                     <input className={ inputClass } value={ caption } onChange={ e => setCaption(e.target.value) } />
@@ -293,18 +290,18 @@ export const CatalogAdminPageEditView: FC<{}> = () =>
                     { translateError && <span className="text-[9px] text-danger">{ translateError }</span> }
                     <textarea className={ `${ inputClass } min-h-[60px] resize-y` } value={ pageText1 } onChange={ e => setPageText1(e.target.value) } />
                 </div>
-            </div>
+                    </div>
 
-            <div className="flex justify-between mt-2">
-                { !isRoot
-                    ? <button className="flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold bg-danger/10 text-danger border border-danger/30 hover:bg-danger/20 transition-colors cursor-pointer" onClick={ handleDelete }>
-                        <FaTrash className="text-[8px]" /> { LocalizeText('catalog.admin.delete') }
-                    </button>
-                    : <div /> }
-                <button className="flex items-center gap-1 px-3 py-1 rounded text-[10px] font-bold bg-primary text-white hover:bg-secondary transition-colors cursor-pointer disabled:opacity-50" disabled={ loading } onClick={ handleSave }>
-                    { loading ? <FaSpinner className="text-[8px] animate-spin" /> : <FaSave className="text-[8px]" /> } { LocalizeText('catalog.admin.save') }
-                </button>
-            </div>
-        </div>
+                    <div className="flex justify-between">
+                        { !isRoot
+                            ? <button className="flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold bg-danger/10 text-danger border border-danger/30 hover:bg-danger/20 transition-colors cursor-pointer" onClick={ handleDelete }>
+                                <FaTrash className="text-[8px]" /> { LocalizeText('catalog.admin.delete') }
+                            </button>
+                            : <div /> }
+                        <button className="flex items-center gap-1 px-3 py-1 rounded text-[10px] font-bold bg-primary text-white hover:bg-secondary transition-colors cursor-pointer disabled:opacity-50" disabled={ loading } onClick={ handleSave }>
+                            { loading ? <FaSpinner className="text-[8px] animate-spin" /> : <FaSave className="text-[8px]" /> } { LocalizeText('catalog.admin.save') }
+                        </button>
+                    </div>
+        </CatalogAdminModalView>
     );
 };

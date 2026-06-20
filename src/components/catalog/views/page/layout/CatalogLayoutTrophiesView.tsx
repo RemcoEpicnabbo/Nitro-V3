@@ -1,9 +1,10 @@
 import { FC, useEffect, useState } from 'react';
-import { FaEdit, FaPen, FaPlus, FaTrophy } from 'react-icons/fa';
+import { FaEdit, FaPen, FaTrophy } from 'react-icons/fa';
 import { LocalizeText, ProductTypeEnum, SanitizeHtml } from '../../../../../api';
 import { Text } from '../../../../../common';
 import { useCatalogData, useCatalogUiState } from '../../../../../hooks';
 import { useCatalogAdmin } from '../../../CatalogAdminContext';
+import { CatalogAdminQuickActionsView } from '../../admin/CatalogAdminQuickActionsView';
 import { CatalogAddOnBadgeWidgetView } from '../widgets/CatalogAddOnBadgeWidgetView';
 import { CatalogItemGridWidgetView } from '../widgets/CatalogItemGridWidgetView';
 import { CatalogPurchaseWidgetView } from '../widgets/CatalogPurchaseWidgetView';
@@ -39,24 +40,7 @@ export const CatalogLayoutTrophiesView: FC<CatalogLayoutProps> = props =>
     return (
         <div className="flex flex-col h-full gap-2">
             { /* Admin: quick actions */ }
-            { adminMode && !catalogAdmin.editingPageData &&
-                <div className="flex gap-2">
-                    <button
-                        className="flex items-center gap-1 text-[10px] text-primary hover:text-dark transition-colors cursor-pointer"
-                        onClick={ () =>
-                        {
-                            catalogAdmin.setEditingPageNode(null); catalogAdmin.setEditingRootPage(false); catalogAdmin.setEditingPageData(true);
-                        } }
-                    >
-                        <FaEdit className="text-[10px]" /> { LocalizeText('catalog.admin.edit.page') }
-                    </button>
-                    <button
-                        className="flex items-center gap-1 text-[10px] text-success hover:text-green-800 transition-colors cursor-pointer"
-                        onClick={ () => catalogAdmin.setEditingOffer({ offerId: -1, product: { productClassId: 0, productType: 'i', productCount: 1, extraParam: '' } } as any) }
-                    >
-                        <FaPlus className="text-[10px]" /> { LocalizeText('catalog.admin.offer.new') }
-                    </button>
-                </div> }
+            <CatalogAdminQuickActionsView />
 
             { /* Selected trophy card. shrink-0 + no overflow-hidden so the
                  Buy button stays inside the panel even when the grid below

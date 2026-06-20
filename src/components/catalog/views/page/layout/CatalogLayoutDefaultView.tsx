@@ -1,9 +1,10 @@
 import { FC } from 'react';
-import { FaEdit, FaExchangeAlt, FaPlus, FaSyncAlt } from 'react-icons/fa';
+import { FaEdit, FaExchangeAlt, FaSyncAlt } from 'react-icons/fa';
 import { GetConfigurationValue, LocalizeText, ProductTypeEnum, SanitizeHtml } from '../../../../../api';
 import { Text } from '../../../../../common';
 import { useCatalogData } from '../../../../../hooks';
 import { useCatalogAdmin } from '../../../CatalogAdminContext';
+import { CatalogAdminQuickActionsView } from '../../admin/CatalogAdminQuickActionsView';
 import { CatalogHeaderView } from '../../catalog-header/CatalogHeaderView';
 import { CatalogAddOnBadgeWidgetView } from '../widgets/CatalogAddOnBadgeWidgetView';
 import { CatalogItemGridWidgetView } from '../widgets/CatalogItemGridWidgetView';
@@ -24,33 +25,7 @@ export const CatalogLayoutDefaultView: FC<CatalogLayoutProps> = props =>
 
     return (
         <div className="nitro-catalog-classic-default-layout flex flex-col h-full gap-2">
-            { adminMode && !catalogAdmin.editingPageData &&
-                <div className="flex gap-2 nitro-catalog-classic-default-admin">
-                    <button
-                        className="flex items-center gap-1 text-[10px] text-primary hover:text-dark transition-colors cursor-pointer"
-                        onClick={ () =>
-                        {
-                            catalogAdmin.setEditingPageNode(null); catalogAdmin.setEditingRootPage(false); catalogAdmin.setEditingPageData(true);
-                        } }
-                    >
-                        <FaEdit className="text-[10px]" /> { LocalizeText('catalog.admin.edit.page') }
-                    </button>
-                    <button
-                        className="flex items-center gap-1 text-[10px] text-success hover:text-green-800 transition-colors cursor-pointer"
-                        onClick={ () => catalogAdmin.setEditingOffer({ offerId: -1, product: { productClassId: 0, productType: 'i', productCount: 1, extraParam: '' } } as any) }
-                    >
-                        <FaPlus className="text-[10px]" /> { LocalizeText('catalog.admin.offer.new') }
-                    </button>
-                    { currentOffer &&
-                        <button
-                            className="flex items-center gap-1 text-[10px] text-primary hover:text-dark transition-colors cursor-pointer"
-                            title={ `${ LocalizeText('catalog.admin.offer.edit') } - Class ${ currentOffer.product.productClassId } / Offer ${ currentOffer.offerId }` }
-                            onClick={ () => catalogAdmin.setEditingOffer(currentOffer) }
-                        >
-                            <FaEdit className="text-[10px]" /> { LocalizeText('catalog.admin.offer.edit') }
-                            <span className="font-mono text-[9px] text-dark font-semibold">#{ currentOffer.product.productClassId }/{ currentOffer.offerId }</span>
-                        </button> }
-                </div> }
+            <CatalogAdminQuickActionsView className="nitro-catalog-classic-default-admin" currentOffer={ currentOffer } />
             <div className="nitro-catalog-classic-product-view">
                 { currentOffer &&
                     <div className="nitro-catalog-classic-offer-panel flex gap-0">

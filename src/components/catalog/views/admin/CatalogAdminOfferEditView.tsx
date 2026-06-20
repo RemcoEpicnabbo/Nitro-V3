@@ -1,9 +1,9 @@
 import { FC, useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { FaSave, FaSpinner, FaTimes, FaTrash } from 'react-icons/fa';
+import { FaSave, FaSpinner, FaTrash } from 'react-icons/fa';
 import { LocalizeText } from '../../../../api';
 import { useCatalogData } from '../../../../hooks';
 import { IOfferEditData, useCatalogAdmin } from '../../CatalogAdminContext';
+import { CatalogAdminModalView } from './CatalogAdminModalView';
 
 export const CatalogAdminOfferEditView: FC<{}> = () =>
 {
@@ -117,22 +117,11 @@ export const CatalogAdminOfferEditView: FC<{}> = () =>
 
     const inputClass = 'text-[11px] border-2 border-card-grid-item-border rounded px-2 py-1 bg-white placeholder:text-[#4b5563] focus:outline-none focus:border-primary transition-colors';
 
-    return createPortal(
-        <div className="fixed inset-0 flex items-center justify-center" style={ { zIndex: 1000 } } onClick={ () => setEditingOffer(null) }>
-            <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
-
-            <div className="nitro-card-shell relative w-[420px] overflow-hidden shadow-lg" onClick={ e => e.stopPropagation() }>
-                { /* Header */ }
-                <div className="nitro-card-header-shell flex items-center justify-between px-3 py-2">
-                    <span className="text-sm font-bold text-white">
-                        { isNew ? LocalizeText('catalog.admin.offer.new') : `${ LocalizeText('catalog.admin.offer.edit') } #${ editingOffer.offerId }` }
-                    </span>
-                    <div className="cursor-pointer" onClick={ () => setEditingOffer(null) }>
-                        <FaTimes className="text-white/70 hover:text-white text-xs" />
-                    </div>
-                </div>
-
-                <div className="p-3 flex flex-col gap-2.5">
+    return (
+        <CatalogAdminModalView
+            title={ isNew ? LocalizeText('catalog.admin.offer.new') : `${ LocalizeText('catalog.admin.offer.edit') } #${ editingOffer.offerId }` }
+            widthClassName="w-[420px]"
+            onClose={ () => setEditingOffer(null) }>
                     { /* Current name */ }
                     { !isNew &&
                         <div className="text-[10px] text-muted bg-card-grid-item rounded px-2.5 py-1 font-mono border border-card-grid-item-border">
@@ -228,9 +217,6 @@ export const CatalogAdminOfferEditView: FC<{}> = () =>
                             { loading ? <FaSpinner className="text-[8px] animate-spin" /> : <FaSave className="text-[8px]" /> } { isNew ? LocalizeText('catalog.admin.create') : LocalizeText('catalog.admin.save') }
                         </button>
                     </div>
-                </div>
-            </div>
-        </div>,
-        document.body
+        </CatalogAdminModalView>
     );
 };
