@@ -35,10 +35,9 @@ const CatalogClassicViewInner: FC<{}> = () =>
     const { purse = null } = usePurse();
     const displayedCurrencies = GetConfigurationValue<number[]>('system.currency.types', []);
     const activeCatalogNode = activeNodes?.[activeNodes.length - 1] ?? null;
-    // Strip SWF-style suffixes like "(BC)" or "(Hot)" but keep the
-    // pageId hint the gameserver appends when the viewer has
-    // ACC_CATALOG_IDS - that's a pure-numeric "(6)" trailer.
-    const getSwfTabLabel = (label: string) => (label || '').replace(/\s*\(\D[^)]*\)\s*$/g, '').trim();
+    // Strip only technical SWF-style suffixes; labels such as
+    // "Flags (Wall)" or "Forest (Blue)" are meaningful catalog names.
+    const getSwfTabLabel = (label: string) => (label || '').replace(/\s*\((?:BC|Hot)\)\s*$/i, '').trim();
     const buildersClubHeaderStyle = (currentType === CatalogType.BUILDER)
         ? { borderColor: '#d79d2e', borderBottomColor: '#000', background: 'linear-gradient(180deg, #d89f2d 0%, #c68515 100%)' }
         : undefined;
