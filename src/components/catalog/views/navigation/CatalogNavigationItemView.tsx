@@ -21,10 +21,9 @@ export const CatalogNavigationItemView: FC<CatalogNavigationItemViewProps> = (pr
     const isFav = node ? isFavoritePage(node.pageId) : false;
     const [isDragOver, setIsDragOver] = useState(false);
     const dragRef = useRef<HTMLDivElement>(null);
-    // Strip SWF-style suffixes like "(BC)" or "(Hot)" but keep the
-    // pageId hint the gameserver appends when the viewer has
-    // ACC_CATALOG_IDS - that's a pure-numeric "(6)" trailer.
-    const swfLabel = (node?.localization || '').replace(/\s*\(\D[^)]*\)\s*$/g, '').trim();
+    // Strip only technical SWF-style suffixes; labels such as
+    // "Flags (Wall)" or "Forest (Blue)" are meaningful catalog names.
+    const swfLabel = (node?.localization || '').replace(/\s*\((?:BC|Hot)\)\s*$/i, '').trim();
 
     const handleDragStart = useCallback(
         (e: React.DragEvent) => {
